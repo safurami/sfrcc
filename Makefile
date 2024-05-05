@@ -1,34 +1,25 @@
 CXX := g++
-CXXFLAGS := -Wall -pedantic -g -c
+CXXFLAGS := -Wall -pedantic -c
 LN := g++
 
-OBJ = ./obj/
-OBJS = $(OBJ)main.o $(OBJ)lexer.o $(OBJ)my.o $(OBJ)token.o
+SRCD := ./src/
+SRC := $(wildcard $(SRCD)*.cpp)
 
-SRC = ./src/
+OBJD := ./obj/
+OBJ := $(patsubst $(SRCD)%.cpp, $(OBJD)%.o, $(SRC))
+
 
 EXECUTABLE := main
 
 all: $(EXECUTABLE)
 
-$(EXECUTABLE): $(OBJS)
+$(EXECUTABLE): $(OBJ)
 	@echo "LN\t$@"
-	@$(LN) $(OBJS) -o $@
+	@$(LN) $(OBJ) -o $@
 
-$(OBJ)main.o: $(SRC)main.cpp
+$(OBJD)%.o: $(SRCD)%.cpp
 	@echo "CXX\t$^"
 	@$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(OBJ)lexer.o: $(SRC)lexer.cpp
-	@echo "CXX\t$^"
-	@$(CXX) $(CXXFLAGS) $^ -o $@
-
-$(OBJ)my.o: $(SRC)my.cpp
-	@echo "CXX\t$^"
-	@$(CXX) $(CXXFLAGS) $^ -o $@
-
-$(OBJ)token.o: $(SRC)token.cpp
-	@echo "CXX\t$^"
-	@$(CXX) $(CXXFLAGS) $^ -o $@
 clean:
-	rm $(OBJS) $(EXECUTABLE)
+	rm -f $(OBJ) $(EXECUTABLE)

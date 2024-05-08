@@ -17,6 +17,7 @@ typedef enum {
   MINUS,
   STAR,
   DIVIDE,
+  DOLLAR,
 
   // double
   DOUBLE_EQUAL,
@@ -42,16 +43,15 @@ typedef enum {
 class token
 {
   token_type_t token_type;
-  int attribute; // atrribute is index in symbol table
+  char *lexeme;
 public:
-  token() { }
-  token(const token&);
-  void print_info();
+  token();
+  ~token();
+  token(token&) = delete;
+  void set_lexeme(const char *, const char *);
+  token_type_t get_type();
   void set_type(token_type_t);
-  void set_attribute(int);
+  char *get_lexeme(); // REMOVEME just for debug
 };
-
-token* init_token(void);
-void free_token(token *);
 
 #endif

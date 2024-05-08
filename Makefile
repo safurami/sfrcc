@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -Wall -pedantic -c
+CXXFLAGS := -Wall -pedantic -c -g
 LN := g++
 
 SRCD := ./src/
@@ -22,4 +22,4 @@ $(OBJD)%.o: $(SRCD)%.cpp
 	@$(CXX) $(CXXFLAGS) $^ -o $@
 
 clean:
-	rm -f $(OBJ) $(EXECUTABLE)
+	@rm -f $(OBJ) $(EXECUTABLE)

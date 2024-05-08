@@ -58,4 +58,21 @@ int fgets(char *storage, std::ifstream& file)
   return i;
 }
 
+
+/*
+ * Copy first n bytes from source to destination,
+ * after copied string, writes null byte.
+ * Return number of copied bytes, null byte is not included.
+ */
+int strncpy(char *destination, const char *source, int size)
+{
+  int i;
+  for(i = 0; i < size; i++)
+  {
+    *(destination + i) = *(source + i);
+  }
+  *(destination + i) = '\0';
+  return i;
+}
+
 };

@@ -7,46 +7,50 @@
 
 #include <iostream>
 
-lexer_handler::lexer_handler(char *f)
+lexer::lexer(char *f) : table()
 {
   this->file.open(f);
   if(!file.is_open())
   {
-    this->current_token = nullptr; // TODO maybe throw instead
+    this->buffer1 = nullptr; // Error, nothing is allocating
+    this->buffer2 = nullptr;
+    this->current_token = nullptr;
     return;
   }
-  this->storage= new char[4096];
-  my::fgets(storage, this->file);
-  this->input = storage;
-  this->current_line = 1;
   this->current_token = new token();
+  this->buffer1 = new char[4096];
+  this->buffer2 = new char[4096];
+  this->file.read(this->buffer1, 4096);
+  this->lexeme_begin = buffer1; // REMOVEME maybe dont need this
+  this->forward = buffer1;
+  this->current_line = 1;
 }
 
-lexer_handler::~lexer_handler()
+bool lexer::is_success()
 {
-  this->file.close();
-  delete this->current_token;
-  this->current_token = nullptr;
-  delete[] this->storage;
-  this->storage = nullptr;
-  this->input= nullptr;
+  if(this->buffer1 == nullptr)
+    return false;
+  return true;
 }
 
-token* lexer_handler::get_next_token()
+lexer::~lexer()
 {
-  if(*this->input == '\0')
+  if(this->file.is_open())
   {
-    if(my::fgets(this->storage, this->file) == EOF)
-    {
-      this->current_token->set_type(DOLLAR);
-      return this->current_token;
-    }
-    this->input = this->storage;
-    this->current_line++;
+    this->file.close();
   }
+  delete this->current_token;
+  delete[] this->buffer1;
+  delete[] this->buffer2;
+}
 
-  for(;*this->input == ' ' && *this->input == '\t';this->input++) {}
+token* lexer::get_next_token()
+{
 
+  switch(*forward++)
+  {
+    // TODO
+  }
 
   return this->current_token;
 }

@@ -1,6 +1,4 @@
-#include "include/token.h"
 #include "include/lexer.h"
-#include "include/my.h"
 
 #include <iostream>
 #include <fstream>
@@ -14,6 +12,11 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  lexer lex(argv[1]);
+  if(!lex.is_success())
+  {
+    return 1;
+  }
 
   return 0;
 }

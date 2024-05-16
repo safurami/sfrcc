@@ -1,8 +1,6 @@
 #ifndef H_SMTBL
 #define H_SMTBL
 
-#include "my.h"
-
 class symbol_table
 {
   class node
@@ -12,6 +10,7 @@ class symbol_table
     int size;
     int line_of_declaration;
     int address;
+    node* next; // TODO ??
 
     node();
     ~node();
@@ -25,13 +24,12 @@ class symbol_table
     void set_address(int);
     int get_address();
   };
-  my::vector<node> table;
+  node* table; // Array for nodes
 public:
   symbol_table();
+  ~symbol_table();
   int install_id(const char *, const char *);
-  int hash(const char *, const char *);
+  static unsigned int hash(const char *, const char *);
 };
-
-
 
 #endif

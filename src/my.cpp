@@ -15,7 +15,7 @@ bool isdigit(char sym)
 
 bool isalnum(char sym)
 {
-  return (sym >= '0' && sym <= '9') || (sym >= 'a' && sym <= 'z') || (sym >= 'A' && sym <= 'Z');
+  return (sym >= '0' && sym <= '9') || (sym >= 'a' && sym <= 'z') || (sym >= 'A' && sym <= 'Z') || sym == '_';
 }
 
 
@@ -45,6 +45,11 @@ int strncpy(char *destination, const char *source, int size)
   }
   *(destination + i) = '\0';
   return i;
+}
+
+bool isalpha(char sym)
+{
+  return (sym >= 'a' && sym <= 'z') || (sym >= 'A' && sym <='Z') || (sym == '_');
 }
 
 };

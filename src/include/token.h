@@ -1,7 +1,7 @@
 #ifndef H_TOKEN
 #define H_TOKEN
 
-typedef enum {
+enum class token_type {
   // single character tokens
   OPEN_PAREN,
   CLOSE_PAREN,
@@ -18,7 +18,8 @@ typedef enum {
   DIVIDE,
   LESS,
   GREATER,
-  DOLLAR,
+  DOLLAR, // for EOF
+  DOT,
 
   // double
   IS_EQUAL, // ==
@@ -33,31 +34,37 @@ typedef enum {
   LITERAL, // like "Hello" and "World"
   INT,
   CHAR,
+  VOID,
   UNSIGNED,
+  FLOAT,
+  DOUBLE,
+  SIGNED,
   IF,
+  SHORT,
   ELSE,
   RETURN,
   CONST,
   FOR,
   WHILE,
+  BREAK,
   SWITCH,
   LONG,
   CASE,
   STRUCT
-} token_type_t;
+};
 
 class token
 {
-  token_type_t token_type;
+  token_type type;
   int attribute; // index of lexeme in symbol table
 public:
   token() = default;
   ~token() = default;
   token(token&) = delete;
   void set_attribute(int);
-  int get_attribute(int);
-  token_type_t get_type();
-  void set_type(token_type_t);
+  int get_attribute();
+  token_type get_type();
+  void set_type(token_type);
 };
 
 #endif

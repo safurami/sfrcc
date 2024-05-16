@@ -69,7 +69,15 @@ int symbol_table::node::get_address()
   return this->address;
 }
 
-symbol_table::symbol_table() : table(100) {}
+symbol_table::symbol_table()
+{
+  this->table = new node[100];
+}
+
+symbol_table::~symbol_table()
+{
+  delete[] this->table;
+}
 
 /*
  * Takes the lexeme, if its not yet in symbol table -
@@ -82,10 +90,7 @@ int symbol_table::install_id(const char *start, const char *end)
   return 0;
 }
 
-/*
- * Computing hash of lexeme and % by size of table(vector table.size)
- */
-int symbol_table::hash(const char *start, const char *end)
+unsigned int symbol_table::hash(const char *start, const char *end)
 {
   // TODO
   return 0;

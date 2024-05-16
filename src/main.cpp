@@ -1,7 +1,6 @@
 #include "include/lexer.h"
 
 #include <iostream>
-#include <fstream>
 
 
 int main(int argc, char *argv[])

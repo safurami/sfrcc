@@ -67,7 +67,7 @@ bool isdigit(char);
 bool isalnum(char);
 int strlen(const char *);
 int strncpy(char *, const char *, int);
-
+bool isalpha(char);
 }
 
 #endif

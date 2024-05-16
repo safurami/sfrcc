@@ -22,8 +22,11 @@ public:
   bool is_success();
   int get_current_line();
   void fail();
-  int get_next_state(int, char);
-  int is_success_state(int);
+  int collect_int(); // idk yet
+  int collect_id();
+  int collect_literal();
+  bool check_word(const char *);
+  bool match(char);
 };
 
 

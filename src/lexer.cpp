@@ -28,9 +28,7 @@ lexer::lexer(char *f)
 
 bool lexer::is_success()
 {
-  if(this->buffer1 == nullptr)
-    return false;
-  return true;
+  return this->buffer1 != nullptr;
 }
 
 lexer::~lexer()
@@ -49,10 +47,10 @@ int lexer::get_current_line()
   return this->current_line;
 }
 
-void lexer::fail()
+void lexer::fail() // TODO possible maybe memory leak
 {
-  std::cout << "Lexical error on line " << this->current_line << std::endl;
-  //printf("Lexical error on line %d\n", this->current_line);
+  // TODO implement text dump
+  printf("Unexpected token on line %d\n", this->current_line);
   if(this->file.is_open())
   {
     this->file.close();
@@ -65,9 +63,7 @@ void lexer::fail()
 
 bool lexer::match(char sym)
 {
-  if(*this->forward == sym) { forward++; return true; }
-  return false;
-  //return *this->forward++ == sym;
+  return *this->forward++ == sym;
 }
 
 bool lexer::check_word(const char *word)
@@ -82,28 +78,51 @@ bool lexer::check_word(const char *word)
   return true;
 }
 
-int lexer::collect_int()
+int lexer::collect_number()
 {
-  // TODO
+  this->forward = this->lexeme_begin;
+  for(;my::isdigit(*forward); this->forward++) {}
+  this->current_token->set_type(token_type::NUMBER);
+  // TODO implement adding number to table(maybe number table?)
   return 0;
 }
 
 int lexer::collect_id()
 {
-  // TODO
+  this->forward = this->lexeme_begin;
+  for(; my::isalnum(*this->forward); this->forward++) {}
+  this->current_token->set_type(token_type::IDENTIFIER);
+  // TODO implement adding identifier to symbol table
   return 0;
 }
 
 int lexer::collect_literal()
 {
-  // TODO
+  this->reset_lexeme();
+  while(*this->forward++ != '"') {}
+  this->current_token->set_type(token_type::LITERAL);
+  // TODO implement adding it to symbol talbe
   return 0;
 }
 
-token* lexer::get_next_token()
+/*
+ * Function to reset lexeme.
+ * This function assign this->forward to this->lexeme_begin + 1.
+ * +1 because first symbol is already read by switch statement in
+ * get_next_token().
+ * Returns true just for comfortable using in if statements.
+ */
+bool lexer::reset_lexeme()
 {
-  char symbol = *forward++;
-  switch(symbol)
+  this->forward = this->lexeme_begin + 1;
+  return true;
+}
+
+token* lexer::get_next_token() // TODO, imlement checking to end of buffer in case statement
+{
+  char symbol;
+again: // label if whitespace was read, to scan new character
+  switch(symbol = *this->forward++)
   {
     case '\0':
       if(this->forward == this->buffer1 + 4096)
@@ -121,8 +140,9 @@ token* lexer::get_next_token()
         this->current_token->set_type(token_type::DOLLAR);
       }
       break;
-    case '\n':
-      this->current_line++; break;
+    case '\n': this->current_line++, this->lexeme_begin = this->forward; goto again;
+    case ' ': this->lexeme_begin = this->forward; goto again;
+    case '\t': this->lexeme_begin = this->forward; goto again;
     case '(':
       this->current_token->set_type(token_type::OPEN_PAREN);
       break;
@@ -184,16 +204,15 @@ token* lexer::get_next_token()
       {
         this->current_token->set_type(token_type::IF);
       }
-      else if(this->check_word("nt") &&
+      else if(this->reset_lexeme() &&
+              this->check_word("nt") &&
               !my::isalnum(*forward)) // possible bug
       {
         this->current_token->set_type(token_type::INT);
       }
       else
       {
-        // this->forward = this->lexeme_begin; // to reset read symbols MOVE TO collect_id
         this->collect_id();
-        // this->current_token->set_type(token_type::IDENTIFIER); MOVE TO collect_id
       }
       break;
     case '\'':
@@ -214,14 +233,14 @@ token* lexer::get_next_token()
       {
         this->current_token->set_type(token_type::CHAR);
       }
-      else if((this->forward = this->lexeme_begin),
+      else if(this->reset_lexeme() &&
               this->check_word("onst") &&
               !my::isalnum(*forward))
       {
         this->current_token->set_type(token_type::CONST);
       }
-      else if((this->forward = this->lexeme_begin),
-              this->check_word("ace") &&
+      else if(this->reset_lexeme() &&
+              this->check_word("ase") &&
               !my::isalnum(*forward))
       {
         this->current_token->set_type(token_type::CASE);
@@ -229,7 +248,6 @@ token* lexer::get_next_token()
       else
       {
         this->collect_id();
-        //this->current_token->set_type(token_type::IDENTIFIER); MOVE TO collect_id
       }
       break;
     case 'v':
@@ -259,7 +277,7 @@ token* lexer::get_next_token()
       {
         this->current_token->set_type(token_type::FLOAT);
       }
-      else if((this->forward = this->lexeme_begin),
+      else if(this->reset_lexeme() &&
               this->check_word("or") &&
               !my::isalnum(*forward))
       {
@@ -286,19 +304,19 @@ token* lexer::get_next_token()
       {
         this->current_token->set_type(token_type::SIGNED);
       }
-      else if((this->forward = this->lexeme_begin),
+      else if(this->reset_lexeme() &&
               this->check_word("hort") &&
               !my::isalnum(*forward))
       {
         this->current_token->set_type(token_type::SHORT);
       }
-      else if((this->forward = this->lexeme_begin),
+      else if(this->reset_lexeme() &&
               this->check_word("witch") &&
               !my::isalnum(*forward))
       {
         this->current_token->set_type(token_type::SWITCH);
       }
-      else if((this->forward = this->lexeme_begin),
+      else if(this->reset_lexeme() &&
               this->check_word("truct") &&
               !my::isalnum(*forward))
       {
@@ -366,11 +384,11 @@ token* lexer::get_next_token()
       }
       else if(my::isdigit(symbol))
       {
-        this->collect_int();
+        this->collect_number();
       }
       break;
   }
 
-  this->lexeme_begin = this->forward; // possible bug
+  this->lexeme_begin = this->forward;
   return this->current_token;
 }

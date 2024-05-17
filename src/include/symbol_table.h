@@ -10,7 +10,6 @@ class symbol_table
     int size;
     int line_of_declaration;
     int address;
-    node* next; // TODO ??
 
     node();
     ~node();
@@ -24,10 +23,11 @@ class symbol_table
     void set_address(int);
     int get_address();
   };
-  node* table; // Array for nodes
+  node* table[100]; // Array for nodes
 public:
   symbol_table();
   ~symbol_table();
+  node* get_node(int);
   int install_id(const char *, const char *);
   static unsigned int hash(const char *, const char *);
 };

@@ -1,8 +1,6 @@
 #include "include/symbol_table.h"
 #include "include/my.h"
 
-#include <iostream> // REMOVEME
-
 symbol_table::node::node(node &other)
 {
   int size = my::strlen(other.name);
@@ -15,7 +13,6 @@ symbol_table::node::node(node &other)
 
 symbol_table::node::node()
 {
-  std::cout << "constructor" << std::endl; // REMOVEME
   this->name = nullptr;
 }
 
@@ -32,8 +29,9 @@ const char* symbol_table::node::get_name()
   return this->name;
 }
 
-void symbol_table::node::set_name(const char *name)
+void symbol_table::node::set_name(const char *name) // TODO memory leak
 {
+  if(this->name != nullptr) { delete[] this->name; }
   int size = my::strlen(name);
   this->name = new char[size + 1];
   my::strncpy(this->name, name, size);
@@ -71,12 +69,15 @@ int symbol_table::node::get_address()
 
 symbol_table::symbol_table()
 {
-  this->table = new node[100];
+  for(int i = 0; i < 100; i++) { this->table[i] = nullptr; }
 }
 
 symbol_table::~symbol_table()
 {
-  delete[] this->table;
+  for(int i = 0; i < 100; i++)
+  {
+    if(this->table[i] != nullptr) { delete this->table[i]; }
+  }
 }
 
 /*
@@ -84,14 +85,40 @@ symbol_table::~symbol_table()
  * writes it to symbol table and return index.
  * If it is already there, return index
  */
-int symbol_table::install_id(const char *start, const char *end)
+int symbol_table::install_id(const char *start, const char *end) // TODO refactor this
 {
-  // TODO
-  return 0;
+  unsigned int sum = this->hash(start, end);
+
+  char *tmp = new char[end - start + 2]; // TODO platform depend, fix it
+  my::strncpy(tmp, start, end - start + 1);
+
+  if(this->get_node(sum) != nullptr && my::strcmp(tmp, this->get_node(sum)->get_name()))
+  {
+    delete[] tmp;
+    return sum;
+  }
+  for(;this->get_node(sum) != nullptr; sum++) {}
+  this->table[sum] = new node();
+  this->get_node(sum)->set_name(tmp);
+  delete[] tmp;
+  return sum;
 }
 
+// TODO implement normal hash function, not this
 unsigned int symbol_table::hash(const char *start, const char *end)
 {
-  // TODO
-  return 0;
+  unsigned int sum = 0;
+  do
+  {
+    sum += *start * 31 + 23;
+    start++;
+  } while(start != end + 1);
+  sum = sum % 100;
+  return sum;
+}
+
+symbol_table::node* symbol_table::get_node(int index)
+{
+  // TODO implement protect from ivalid index
+  return this->table[index];
 }

@@ -5,15 +5,12 @@
 #include "include/my.h"
 
 
-namespace my
-{
-
-bool isdigit(char sym)
+bool my::isdigit(char sym)
 {
   return sym >= '0' && sym <= '9';
 }
 
-bool isalnum(char sym)
+bool my::isalnum(char sym)
 {
   return (sym >= '0' && sym <= '9') || (sym >= 'a' && sym <= 'z') || (sym >= 'A' && sym <= 'Z') || sym == '_';
 }
@@ -23,7 +20,7 @@ bool isalnum(char sym)
  * Reads string until null byte.
  * Returns number of reads bytes, null byte is not included.
  */
-int strlen(const char *string)
+int my::strlen(const char *string)
 {
   int i;
   for(i = 0; *string != '\0'; i++, string++) {}
@@ -36,7 +33,7 @@ int strlen(const char *string)
  * after copied string, writes null byte.
  * Return number of copied bytes, null byte is not included.
  */
-int strncpy(char *destination, const char *source, int size)
+int my::strncpy(char *destination, const char *source, int size)
 {
   int i;
   for(i = 0; i < size; i++)
@@ -47,9 +44,19 @@ int strncpy(char *destination, const char *source, int size)
   return i;
 }
 
-bool isalpha(char sym)
+bool my::isalpha(char sym)
 {
   return (sym >= 'a' && sym <= 'z') || (sym >= 'A' && sym <='Z') || (sym == '_');
 }
 
-};
+/*
+ * Compares two strings.
+ * Returns true if they are equal each other.
+ */
+int my::strcmp(const char *str1, const char *str2)
+{
+  int i;
+  for(i = 0; str1[i] == str2[i] && str1[i] != '\0' && str2[i] != '\0'; i++) {}
+  if(str1[i] == '\0' && str2[i] == '\0') { return 1; } // possible bug
+  return 0;
+}

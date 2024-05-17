@@ -1,9 +1,9 @@
 #ifndef H_TOKEN
 #define H_TOKEN
 
-enum class token_type {
+enum class token_type: unsigned char {
   // single character tokens
-  OPEN_PAREN,
+  OPEN_PAREN = 0,
   CLOSE_PAREN,
   SEMICOLON,
   OPEN_CURLYB,
@@ -63,7 +63,7 @@ public:
   token(token&) = delete;
   void set_attribute(int);
   int get_attribute();
-  token_type get_type();
+  int get_type(); // REMOVEME return data type to token_type
   void set_type(token_type);
 };
 

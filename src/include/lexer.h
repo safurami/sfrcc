@@ -18,15 +18,16 @@ public:
   lexer(lexer&) = delete;
   lexer(char *); // * - file
   ~lexer();
-  token* get_next_token();
   bool is_success();
   int get_current_line();
   void fail();
-  int collect_int(); // idk yet
-  int collect_id();
-  int collect_literal();
+  token* get_next_token();
   bool check_word(const char *);
   bool match(char);
+  int collect_number();
+  int collect_id();
+  int collect_literal();
+  bool reset_lexeme();
 };
 
 

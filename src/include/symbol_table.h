@@ -23,13 +23,14 @@ class symbol_table
     void set_address(int);
     int get_address();
   };
-  node* table[100]; // Array for nodes
+  node* table[100]; // Array for lexemes, keyword HASH to find all depends parts of codes
 public:
   symbol_table();
   ~symbol_table();
   node* get_node(int);
   int install_id(const char *, const char *);
   static unsigned int hash(const char *, const char *);
+  void dump_table(void);
 };
 
 #endif

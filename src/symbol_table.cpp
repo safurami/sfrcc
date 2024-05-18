@@ -1,6 +1,8 @@
 #include "include/symbol_table.h"
 #include "include/my.h"
 
+#include <iostream>
+
 symbol_table::node::node(node &other)
 {
   int size = my::strlen(other.name);
@@ -29,7 +31,7 @@ const char* symbol_table::node::get_name()
   return this->name;
 }
 
-void symbol_table::node::set_name(const char *name) // TODO memory leak
+void symbol_table::node::set_name(const char *name)
 {
   if(this->name != nullptr) { delete[] this->name; }
   int size = my::strlen(name);
@@ -74,7 +76,7 @@ symbol_table::symbol_table()
 
 symbol_table::~symbol_table()
 {
-  for(int i = 0; i < 100; i++)
+  for(int i = 0; i < 100; i++) // HASH
   {
     if(this->table[i] != nullptr) { delete this->table[i]; }
   }
@@ -89,7 +91,7 @@ int symbol_table::install_id(const char *start, const char *end) // TODO refacto
 {
   unsigned int sum = this->hash(start, end);
 
-  char *tmp = new char[end - start + 2]; // TODO platform depend, fix it
+  char *tmp = new char[end - start + 2]; // TODO platform depend(MAYBE, idk exactly), fix it
   my::strncpy(tmp, start, end - start + 1);
 
   if(this->get_node(sum) != nullptr && my::strcmp(tmp, this->get_node(sum)->get_name()))
@@ -113,12 +115,26 @@ unsigned int symbol_table::hash(const char *start, const char *end)
     sum += *start * 31 + 23;
     start++;
   } while(start != end + 1);
-  sum = sum % 100;
+  sum = sum % 100; // HASH
   return sum;
 }
 
 symbol_table::node* symbol_table::get_node(int index)
 {
-  // TODO implement protect from ivalid index
+  if(index < 0 || index > 99) // invalid index, returning first element, HASH
+  {
+    return this->table[0];
+  }
   return this->table[index];
+}
+
+void symbol_table::dump_table()
+{
+  for(int i = 0; i < 100; i++) // HASH
+  {
+    if(this->get_node(i) != nullptr)
+    {
+      printf("Index: %d\tName:%s\n", i, this->get_node(i)->get_name());
+    }
+  }
 }

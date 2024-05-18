@@ -7,9 +7,16 @@
 
 #include <iostream>
 
-lexer::lexer(char *f)
+lexer::lexer(char *f, symbol_table* table)
 {
+  if(table == nullptr)
+  {
+    this->buffer1 = nullptr;
+    return;
+  }
+  this->table = table;
   this->file.open(f);
+
   if(!file.is_open())
   {
     this->buffer1 = nullptr; // Error, nothing is allocating
@@ -47,10 +54,30 @@ int lexer::get_current_line()
   return this->current_line;
 }
 
-void lexer::fail() // TODO possible maybe memory leak
+void lexer::fail() // TODO possible maybe memory leak, and prefered to refactor it
 {
-  // TODO implement text dump
-  printf("Unexpected token on line %d\n", this->current_line);
+  this->forward--;
+  char *string_start;
+
+  printf("\n--Unexpected token on line: %d--\n", this->current_line);
+
+  if(this->current_line == 1)
+  {
+    string_start = this->buffer1;
+  }
+  else
+  {
+    for(;*(this->lexeme_begin-1) != '\n'; this->lexeme_begin--) {}
+    string_start = this->lexeme_begin;
+  }
+  for(this->lexeme_begin = string_start; *this->lexeme_begin != '\n'; this->lexeme_begin++) { std::cout << *this->lexeme_begin; }
+  std::cout << std::endl;
+  for(this->lexeme_begin = string_start; this->lexeme_begin != this->forward;this->lexeme_begin++)
+  {
+    std::cout << '~';
+  }
+  std::cout << '^' << std::endl;
+
   if(this->file.is_open())
   {
     this->file.close();
@@ -58,6 +85,7 @@ void lexer::fail() // TODO possible maybe memory leak
   delete this->current_token;
   delete[] this->buffer1;
   delete[] this->buffer2;
+  delete this->table;
   exit(1);
 }
 
@@ -83,7 +111,7 @@ int lexer::collect_number()
   this->forward = this->lexeme_begin;
   for(;my::isdigit(*forward); this->forward++) {}
   this->current_token->set_type(token_type::NUMBER);
-  // TODO implement adding number to table(maybe number table?)
+  this->current_token->set_attribute(this->table->install_id(this->lexeme_begin, this->forward - 1)); // TODO fix it, its reads one more character than need
   return 0;
 }
 
@@ -92,7 +120,7 @@ int lexer::collect_id()
   this->forward = this->lexeme_begin;
   for(; my::isalnum(*this->forward); this->forward++) {}
   this->current_token->set_type(token_type::IDENTIFIER);
-  // TODO implement adding identifier to symbol table
+  this->current_token->set_attribute(this->table->install_id(this->lexeme_begin, this->forward - 1)); // TODO fix it, its reads one more character than need
   return 0;
 }
 
@@ -101,7 +129,7 @@ int lexer::collect_literal()
   this->reset_lexeme();
   while(*this->forward++ != '"') {}
   this->current_token->set_type(token_type::LITERAL);
-  // TODO implement adding it to symbol talbe
+  this->current_token->set_attribute(this->table->install_id(this->lexeme_begin + 1, this->forward - 2)); // TODO fix it, it reads two more character than need
   return 0;
 }
 
@@ -159,7 +187,15 @@ again: // label if whitespace was read, to scan new character
       this->current_token->set_type(token_type::CLOSE_CURLYB);
       break;
     case '=':
-      this->current_token->set_type( this->match('=') ? token_type::IS_EQUAL : token_type::ASSIGN);
+      if(this->match('='))
+      {
+        this->current_token->set_type(token_type::IS_EQUAL);
+      }
+      else
+      {
+        this->forward--; // return pointer to one character back becasue one character was already read
+        this->current_token->set_type(token_type::ASSIGN);
+      }
       break;
     case ',':
       this->current_token->set_type(token_type::COMA);
@@ -216,7 +252,7 @@ again: // label if whitespace was read, to scan new character
       }
       break;
     case '\'':
-      this->forward++;
+      this->current_token->set_attribute(*this->forward++);
       if(!match('\''))
       {
         this->fail();
@@ -225,7 +261,6 @@ again: // label if whitespace was read, to scan new character
       break;
     case '"':
       this->collect_literal();
-      this->current_token->set_type(token_type::LITERAL);
       break;
     case 'c':
       if(this->check_word("har") &&

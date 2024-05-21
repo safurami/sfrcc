@@ -5,8 +5,6 @@
 #include "include/lexer.h"
 #include "include/my.h"
 
-#include <iostream>
-
 lexer::lexer(char *f, symbol_table* table)
 {
   if(table == nullptr)
@@ -54,12 +52,12 @@ int lexer::get_current_line()
   return this->current_line;
 }
 
-void lexer::fail() // TODO possible maybe memory leak, and prefered to refactor it
+void lexer::fail() // TODO: possible memory leak i guess, and prefered to refactor this function.
 {
   this->forward--;
   char *string_start;
 
-  printf("\n--Unexpected token on line: %d--\n", this->current_line);
+  printf("\n---Unexpected token on line: %d---\n\n", this->current_line);
 
   if(this->current_line == 1)
   {
@@ -70,13 +68,13 @@ void lexer::fail() // TODO possible maybe memory leak, and prefered to refactor 
     for(;*(this->lexeme_begin-1) != '\n'; this->lexeme_begin--) {}
     string_start = this->lexeme_begin;
   }
-  for(this->lexeme_begin = string_start; *this->lexeme_begin != '\n'; this->lexeme_begin++) { std::cout << *this->lexeme_begin; }
-  std::cout << std::endl;
+  for(this->lexeme_begin = string_start; *this->lexeme_begin != '\n'; this->lexeme_begin++) { printf("%c", *this->lexeme_begin); }
+  printf("\n");
   for(this->lexeme_begin = string_start; this->lexeme_begin != this->forward;this->lexeme_begin++)
   {
-    std::cout << '~';
+    printf("~");
   }
-  std::cout << '^' << std::endl;
+  printf("^\n");
 
   if(this->file.is_open())
   {
@@ -91,7 +89,7 @@ void lexer::fail() // TODO possible maybe memory leak, and prefered to refactor 
 
 bool lexer::match(char sym)
 {
-  return *this->forward++ == sym;
+  return this->next_character() == sym;
 }
 
 bool lexer::check_word(const char *word)
@@ -106,31 +104,81 @@ bool lexer::check_word(const char *word)
   return true;
 }
 
-int lexer::collect_number()
+void lexer::collect_number()
 {
   this->forward = this->lexeme_begin;
-  for(;my::isdigit(*forward); this->forward++) {}
+  for(;my::isdigit(*forward); this->next_character()) {}
   this->current_token->set_type(token_type::NUMBER);
-  this->current_token->set_attribute(this->table->install_id(this->lexeme_begin, this->forward - 1)); // TODO fix it, its reads one more character than need
-  return 0;
+  this->current_token->set_attribute(this->table->install_id(this->lexeme_begin, this->forward - 1)); // TODO: fix loop, loop reads one more character than needed.
 }
 
-int lexer::collect_id()
+void lexer::collect_id()
 {
   this->forward = this->lexeme_begin;
-  for(; my::isalnum(*this->forward); this->forward++) {}
+  for(; my::isalnum(*this->forward); this->next_character()) {}
   this->current_token->set_type(token_type::IDENTIFIER);
-  this->current_token->set_attribute(this->table->install_id(this->lexeme_begin, this->forward - 1)); // TODO fix it, its reads one more character than need
-  return 0;
+  this->current_token->set_attribute(this->table->install_id(this->lexeme_begin, this->forward - 1)); // TODO: fix loop, loop reads one more character than needed.
 }
 
-int lexer::collect_literal()
+void lexer::collect_literal()
 {
   this->reset_lexeme();
-  while(*this->forward++ != '"') {}
+  while(this->next_character() != '"') {}
   this->current_token->set_type(token_type::LITERAL);
-  this->current_token->set_attribute(this->table->install_id(this->lexeme_begin + 1, this->forward - 2)); // TODO fix it, it reads two more character than need
-  return 0;
+  this->current_token->set_attribute(this->table->install_id(this->lexeme_begin + 1, this->forward - 2)); // TODO: fix loop, loop reads two mode chatacter than needed.
+}
+
+/*
+ * Function for getting current character and increasing
+ * forward pointer, if forward pointer now points to null byte -
+ * check, if it is an end of either buffer, then read file to another buffer
+ * and move forward pointer there, otherwise return EOF. If it is not null byte -
+ * return character that was read.
+ */
+char lexer::next_character()
+{
+  char *tmp;
+  for(; (tmp = forward), *tmp == '\0' || *tmp == '\n';)
+  {
+    if(*tmp == '\0')
+    {
+      if(tmp == this->buffer1 + 4096)
+      {
+        this->file.read(this->buffer2, 4096);
+        this->forward = this->buffer2;
+      }
+      else if(tmp == this->buffer2 + 4096)
+      {
+        this->file.read(this->buffer1, 4096);
+        this->forward = this->buffer1;
+      }
+      else
+      {
+        return EOF;
+      }
+    }
+    if(*tmp == '\n')
+    {
+      this->current_line++;
+      this->forward++;
+      this->lexeme_begin++; // without this increment, lexeme_begin will point to '\n', and check_word() will alway fail.
+    }
+  }
+  this->forward++;
+  return *tmp;
+}
+
+void lexer::skip_line_comment()
+{
+  // TODO: implemented via raw pointer. That will spoil all when buffer1 will end. Implement via next_character().
+  for(;*this->forward++ != '\n';) {}
+  this->current_line++; // New line occurred
+  this->lexeme_begin = this->forward;
+}
+
+void lexer::skip_multline_comment()
+{
+  // TODO: implement skipping multiple lines comment
 }
 
 /*
@@ -150,25 +198,11 @@ token* lexer::get_next_token() // TODO, imlement checking to end of buffer in ca
 {
   char symbol;
 again: // label if whitespace was read, to scan new character
-  switch(symbol = *this->forward++)
+  switch(symbol = this->next_character())
   {
-    case '\0':
-      if(this->forward == this->buffer1 + 4096)
-      {
-        this->file.read(this->buffer2, 4096);
-        this->forward = this->buffer2;
-      }
-      else if(this->forward == this->buffer2 + 4096)
-      {
-        this->file.read(this->buffer1, 4096);
-        this->forward = this->buffer1;
-      }
-      else
-      {
-        this->current_token->set_type(token_type::DOLLAR);
-      }
+    case EOF:
+      this->current_token->set_type(token_type::DOLLAR);
       break;
-    case '\n': this->current_line++, this->lexeme_begin = this->forward; goto again;
     case ' ': this->lexeme_begin = this->forward; goto again;
     case '\t': this->lexeme_begin = this->forward; goto again;
     case '(':
@@ -193,7 +227,7 @@ again: // label if whitespace was read, to scan new character
       }
       else
       {
-        this->forward--; // return pointer to one character back becasue one character was already read
+        this->reset_lexeme();
         this->current_token->set_type(token_type::ASSIGN);
       }
       break;
@@ -216,7 +250,16 @@ again: // label if whitespace was read, to scan new character
       this->current_token->set_type(token_type::STAR);
       break;
     case '/':
-      this->current_token->set_type(token_type::DIVIDE);
+      if(this->match('/'))
+      {
+        this->skip_line_comment();
+        goto again;
+      }
+      else
+      {
+        this->reset_lexeme();
+        this->current_token->set_type(token_type::DIVIDE);
+      }
       break;
     case '<':
       this->current_token->set_type( this->match('=') ? token_type::LEQ : token_type::LESS);
@@ -252,7 +295,7 @@ again: // label if whitespace was read, to scan new character
       }
       break;
     case '\'':
-      this->current_token->set_attribute(*this->forward++);
+      this->current_token->set_attribute(this->next_character());
       if(!match('\''))
       {
         this->fail();

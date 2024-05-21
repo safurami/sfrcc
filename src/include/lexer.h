@@ -14,8 +14,8 @@ class lexer
   char* forward; // pointer to read lexemes
   token* current_token;
   std::ifstream file;
-  symbol_table* table;
 public:
+  symbol_table* table; // TODO: bring me back to private section.
   lexer(lexer&) = delete;
   lexer(char *, symbol_table*); // * - file, and the symbol_table
   ~lexer();
@@ -25,10 +25,13 @@ public:
   token* get_next_token();
   bool check_word(const char *);
   bool match(char);
-  int collect_number();
-  int collect_id();
-  int collect_literal();
+  void collect_number();
+  void collect_id();
+  void collect_literal();
+  void skip_line_comment();
+  void skip_multline_comment();
   bool reset_lexeme();
+  char next_character();
 };
 
 

@@ -63,7 +63,7 @@ public:
   token(token&) = delete;
   void set_attribute(int);
   int get_attribute();
-  int get_type(); // REMOVEME return data type to token_type
+  token_type get_type();
   void set_type(token_type);
 };
 

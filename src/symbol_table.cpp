@@ -1,7 +1,7 @@
 #include "include/symbol_table.h"
 #include "include/my.h"
 
-#include <iostream>
+#include <cstdio>
 
 symbol_table::node::node(node &other)
 {
@@ -87,11 +87,11 @@ symbol_table::~symbol_table()
  * writes it to symbol table and return index.
  * If it is already there, return index
  */
-int symbol_table::install_id(const char *start, const char *end) // TODO refactor this
+int symbol_table::install_id(const char *start, const char *end) // TODO: refactor this
 {
   unsigned int sum = this->hash(start, end);
 
-  char *tmp = new char[end - start + 2]; // TODO platform depend(MAYBE, idk exactly), fix it
+  char *tmp = new char[end - start + 2]; // TODO: platform depend(MAYBE, idk exactly), fix it
   my::strncpy(tmp, start, end - start + 1);
 
   if(this->get_node(sum) != nullptr && my::strcmp(tmp, this->get_node(sum)->get_name()))
@@ -99,6 +99,7 @@ int symbol_table::install_id(const char *start, const char *end) // TODO refacto
     delete[] tmp;
     return sum;
   }
+  // TODO: implement returning index of elements that stored in another index, because previous index was occupied.
   for(;this->get_node(sum) != nullptr; sum++) {}
   this->table[sum] = new node();
   this->get_node(sum)->set_name(tmp);
@@ -106,7 +107,7 @@ int symbol_table::install_id(const char *start, const char *end) // TODO refacto
   return sum;
 }
 
-// TODO implement normal hash function, not this
+// TODO: implement normal hash function, not this
 unsigned int symbol_table::hash(const char *start, const char *end)
 {
   unsigned int sum = 0;
@@ -128,8 +129,9 @@ symbol_table::node* symbol_table::get_node(int index)
   return this->table[index];
 }
 
-void symbol_table::dump_table()
+void symbol_table::dump_table() // TODO: maybe remove in future.
 {
+  printf("\n---Table Dump---\n");
   for(int i = 0; i < 100; i++) // HASH
   {
     if(this->get_node(i) != nullptr)
@@ -137,4 +139,5 @@ void symbol_table::dump_table()
       printf("Index: %d\tName:%s\n", i, this->get_node(i)->get_name());
     }
   }
+  printf("---End of Dump---\n");
 }

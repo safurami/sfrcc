@@ -4,3 +4,4 @@ grammar
 main
 refresh_qt.sh
 changes
+.gitignore

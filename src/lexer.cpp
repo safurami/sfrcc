@@ -178,6 +178,14 @@ void lexer::skip_line_comment()
 
 void lexer::skip_multline_comment()
 {
+  while(1)
+  {
+    if(this->match('*') && this->match('/'))
+    {
+      break;
+    }
+  }
+  this->lexeme_begin = this->forward;
   // TODO: implement skipping multiple lines comment
 }
 
@@ -197,7 +205,7 @@ bool lexer::reset_lexeme()
 token* lexer::get_next_token() // TODO, imlement checking to end of buffer in case statement
 {
   char symbol;
-again: // label if whitespace was read, to scan new character
+again: // label to avoid returning token after whitespace or comment
   switch(symbol = this->next_character())
   {
     case EOF:
@@ -253,6 +261,11 @@ again: // label if whitespace was read, to scan new character
       if(this->match('/'))
       {
         this->skip_line_comment();
+        goto again;
+      }
+      else if(this->reset_lexeme() && this->match('*'))
+      {
+        this->skip_multline_comment();
         goto again;
       }
       else

@@ -5,7 +5,7 @@ namespace my
 {
 
 /*
- * My implementation of vector
+ * My poor implementation of vector. I didnt even write pop_back() and erase() methods XD.
  */
 template <typename T>
 class vector

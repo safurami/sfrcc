@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -Wextra -Wall -pedantic -c -g -std=c++17
+CXXFLAGS := -Wextra -Wall -pedantic -c -std=c++17 -g
 LN := g++
 
 SRCD := ../src/

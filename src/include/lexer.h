@@ -7,17 +7,18 @@
 
 class lexer
 {
-  int current_line;
-  char* buffer1;
-  char* buffer2;
-  char* lexeme_begin; // pointer to point to start of the current lexeme
-  char* forward; // pointer to read lexemes
-  token* current_token;
-  std::ifstream file;
+private:
+  int m_current_line;
+  char* m_buffer1;
+  char* m_buffer_2;
+  char* m_lexeme_begin; // pointer to point to start of the current lexeme
+  char* m_forward; // pointer to read lexemes
+  token* m_current_token;
+  std::ifstream m_file;
+  symbol_table* m_table;
 public:
-  symbol_table* table; // TODO: bring me back to private section.
   lexer(lexer&) = delete;
-  lexer(char *, symbol_table*); // * - file, and the symbol_table
+  lexer(const char *, symbol_table*); // * - file, and the symbol_table
   ~lexer();
   bool is_success();
   int get_current_line();

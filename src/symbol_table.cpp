@@ -3,70 +3,70 @@
 
 #include <cstdio>
 
-symbol_table::node::node(node &other)
-{
-  int size = my::strlen(other.name);
-  this->name = new char[size + 1];
-  my::strncpy(this->name, other.name, size);
-  this->size = other.size;
-  this->line_of_declaration = other.line_of_declaration;
-  this->address = other.address;
-}
-
 symbol_table::node::node()
 {
-  this->name = nullptr;
+  this->m_name = nullptr;
 }
 
 symbol_table::node::~node()
 {
-  if(this->name != nullptr)
+  if(this->m_name != nullptr)
   {
-    delete[] this->name;
+    delete[] this->m_name;
   }
 }
 
 const char* symbol_table::node::get_name()
 {
-  return this->name;
+  return this->m_name;
 }
 
 void symbol_table::node::set_name(const char *name)
 {
-  if(this->name != nullptr) { delete[] this->name; }
+  if(this->m_name != nullptr) { delete[] this->m_name; }
   int size = my::strlen(name);
-  this->name = new char[size + 1];
-  my::strncpy(this->name, name, size);
+  this->m_name = new char[size + 1];
+  my::strncpy(this->m_name, name, size);
 }
 
 void symbol_table::node::set_size(int size)
 {
-  this->size = size;
+  this->m_size = size;
 }
 
 int symbol_table::node::get_size()
 {
-  return this->size;
+  return this->m_size;
 }
 
 void symbol_table::node::set_line(int line)
 {
-  this->line_of_declaration = line;
+  this->m_line_of_declaration = line;
 }
 
 int symbol_table::node::get_line()
 {
-  return this->line_of_declaration;
+  return this->m_line_of_declaration;
 }
 
 void symbol_table::node::set_address(int address)
 {
-  this->address = address;
+  this->m_address = address;
 }
 
 int symbol_table::node::get_address()
 {
-  return this->address;
+  return this->m_address;
+}
+
+void symbol_table::node::set_type(node_type type)
+{
+  this->m_type = type;
+}
+
+node_type symbol_table::node::get_type()
+{
+  return this->m_type;
 }
 
 symbol_table::symbol_table()
@@ -87,11 +87,11 @@ symbol_table::~symbol_table()
  * writes it to symbol table and return index.
  * If it is already there, return index
  */
-int symbol_table::install_id(const char *start, const char *end) // TODO: refactor this
+int symbol_table::install_node(const char *start, const char *end, node_type type) // TODO: refactor this
 {
   unsigned int sum = this->hash(start, end);
 
-  char *tmp = new char[end - start + 2]; // TODO: platform depend(MAYBE, idk exactly), fix it
+  char *tmp = new char[end - start + 2]; // Alocating memory for lexeme
   my::strncpy(tmp, start, end - start + 1);
 
   if(this->get_node(sum) != nullptr && my::strcmp(tmp, this->get_node(sum)->get_name()))
@@ -103,6 +103,7 @@ int symbol_table::install_id(const char *start, const char *end) // TODO: refact
   for(;this->get_node(sum) != nullptr; sum++) {}
   this->table[sum] = new node();
   this->get_node(sum)->set_name(tmp);
+  this->get_node(sum)->set_type(type);
   delete[] tmp;
   return sum;
 }
@@ -131,13 +132,20 @@ symbol_table::node* symbol_table::get_node(int index)
 
 void symbol_table::dump_table() // TODO: maybe remove in future.
 {
-  printf("\n---Table Dump---\n");
+  printf("\n---Table Dump---\n\n");
   for(int i = 0; i < 100; i++) // HASH
   {
     if(this->get_node(i) != nullptr)
     {
-      printf("Index: %d\tName:%s\n", i, this->get_node(i)->get_name());
+      printf("Index: %02d | Name:%10s | Type: ", i, this->get_node(i)->get_name());
+      switch(this->get_node(i)->get_type())
+      {
+      case node_type::NUMBER: printf("Number"); break;
+      case node_type::IDENTIFIER: printf("Identifier"); break;
+      case node_type::LITERAL: printf("Literal"); break;
+      }
+      printf("\n");
     }
   }
-  printf("---End of Dump---\n");
+  printf("\n---End of Dump---\n");
 }

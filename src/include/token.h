@@ -20,6 +20,8 @@ enum class token_type: unsigned char {
   GREATER,
   DOLLAR, // for EOF
   DOT,
+  AND, // &
+  OR, // |
 
   // double
   IS_EQUAL, // ==
@@ -55,16 +57,18 @@ enum class token_type: unsigned char {
 
 class token
 {
-  token_type type;
-  int attribute; // index of lexeme in symbol table
+private:
+  token_type m_type;
+  int m_attribute; // index of lexeme in symbol table
 public:
-  token() = default;
+  token();
   ~token() = default;
   token(token&) = delete;
   void set_attribute(int);
   int get_attribute();
   token_type get_type();
   void set_type(token_type);
+  void operator =(const token&);
 };
 
 #endif

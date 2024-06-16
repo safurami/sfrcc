@@ -18,7 +18,7 @@ token::token(token& other)
   this->m_line = other.m_line;
 }
 
-void token::set_type(token_type type, int line)
+void token::set_parameters(token_type type, int line)
 {
   this->m_type = type;
   this->m_line = line;
@@ -66,8 +66,8 @@ const char* token_type_to_string(token_type t) // REMOVEME, just for debug
   case (int)token_type::CLOSE_CURLYB: return "Close curly";
   case (int)token_type::ASSIGN: return "Assign";
   case (int)token_type::COMMA: return "Comma";
-  case (int)token_type::SQ_OPEN_B: return "Square open";
-  case (int)token_type::SQ_CLOSE_B: return "Square close";
+  case (int)token_type::SQ_OPENB: return "Square open";
+  case (int)token_type::SQ_CLOSEB: return "Square close";
   case (int)token_type::PLUS: return "Plus";
   case (int)token_type::MINUS: return "Minus";
   case (int)token_type::STAR: return "Star";

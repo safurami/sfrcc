@@ -10,10 +10,9 @@ class lexer
 {
 private:
   int m_current_line;
-  char* m_buffer1;
-  char* m_buffer2;
-  char* m_lexeme_begin; // pointer to point to start of the current lexeme
-  char* m_forward; // pointer to read lexemes
+  char* m_buffer;
+  char* m_input; // pointer to read lexemes
+  char* m_lexeme_start;
   token* m_current_token;
   std::ifstream m_file;
   bool m_was_error;
@@ -23,24 +22,25 @@ private:
 
 public:
   lexer(lexer&) = delete;
-  lexer(const char *, symbol_table*); // * - file, and the symbol_table
+  lexer(const char *, symbol_table*);
   ~lexer();
-  bool is_success();
-  int get_current_line();
-  void lexer_error();
-  token* get_next_token();
-  bool check_word(const char *);
+  bool was_error();
+  char peek();
+  char advance();
   bool match(char);
-  void collect_number();
   void collect_id();
-  void collect_literal();
+  int collect_literal();
+  void report_error();
+  void report_error(int, const char*);
+  void collect_number();
+  bool check_rest(const char *);
+
+  token* get_next_token();
   void skip_line_comment();
   void skip_multline_comment();
+
   bool reset_lexeme();
-  char next_character();
   void free_all();
-  char peek();
-  bool was_error();
 };
 
 

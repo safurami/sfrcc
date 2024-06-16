@@ -8,3 +8,11 @@ Tomorrow i gonna remake this little parser, make it better,
 and then i am going to slowly add a logic to syntax trees.
 I dont know how i am gonna implement statements, like if
 statement and etc.
+
+--- 16 Jun 2024 ---
+So i decided rewrite my lexer, because i am tired of
+segfaults XD. Because to store file in memory, i was
+using method from Dragon Book, with two buffer, each
+4096 bytes length. Now i gonna allocating buffer for
+the whole file for one time. I had a lot of problems
+with poitners (forward and lexeme_begin).

@@ -19,10 +19,10 @@ clean:
 	rm -f $(OBJ) ../$(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJ)
-#	@echo "ln\t$@"
+	@echo "LN\t$@"
 	@$(LN) $(OBJ) -o ../$@
 
 $(OBJD)%.o: $(SRCD)%.cpp
-#	@echo "cxx\t$^"
+	@echo "CXX\t$^"
 	@$(CXX) $(CXXFLAGS) $^ -o $@
 

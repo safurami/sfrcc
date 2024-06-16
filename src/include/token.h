@@ -10,8 +10,8 @@ enum class token_type: unsigned char {
   CLOSE_CURLYB,
   ASSIGN,
   COMMA,
-  SQ_OPEN_B,
-  SQ_CLOSE_B,
+  SQ_OPENB,
+  SQ_CLOSEB,
   PLUS,
   MINUS,
   STAR,
@@ -69,7 +69,7 @@ public:
   void set_attribute(int);
   int get_attribute();
   token_type get_type();
-  void set_type(token_type, int);
+  void set_parameters(token_type, int);
   void operator =(const token&);
   int get_line();
 };

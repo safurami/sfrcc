@@ -9,7 +9,7 @@ enum class token_type: unsigned char {
   OPEN_CURLYB,
   CLOSE_CURLYB,
   ASSIGN,
-  COMA,
+  COMMA,
   SQ_OPEN_B,
   SQ_CLOSE_B,
   PLUS,
@@ -22,6 +22,7 @@ enum class token_type: unsigned char {
   DOT,
   AND, // &
   OR, // |
+  BANG, // !
 
   // double
   IS_EQUAL, // ==
@@ -60,15 +61,20 @@ class token
 private:
   token_type m_type;
   int m_attribute; // index of lexeme in symbol table
+  int m_line;
 public:
   token();
   ~token() = default;
-  token(token&) = delete;
+  token(token&);
   void set_attribute(int);
   int get_attribute();
   token_type get_type();
-  void set_type(token_type);
+  void set_type(token_type, int);
   void operator =(const token&);
+  int get_line();
 };
+
+const char* token_type_to_string(token_type); // REMOVEME, just for debug
+
 
 #endif

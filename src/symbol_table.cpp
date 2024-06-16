@@ -71,12 +71,12 @@ node_type symbol_table::node::get_type()
 
 symbol_table::symbol_table()
 {
-  for(int i = 0; i < 100; i++) { this->table[i] = nullptr; }
+  for(int i = 0; i < SYM_TBL_SIZE; i++) { this->table[i] = nullptr; } // HASH
 }
 
 symbol_table::~symbol_table()
 {
-  for(int i = 0; i < 100; i++) // HASH
+  for(int i = 0; i < SYM_TBL_SIZE; i++) // HASH
   {
     if(this->table[i] != nullptr) { delete this->table[i]; }
   }
@@ -94,8 +94,15 @@ int symbol_table::install_node(const char *start, const char *end, node_type typ
   char *tmp = new char[end - start + 2]; // Alocating memory for lexeme
   my::strncpy(tmp, start, end - start + 1);
 
+#ifdef DEBUG
+  printf("[Symbol Table] Called function to register '%s' node...\n", tmp);
+#endif
+
   if(this->get_node(sum) != nullptr && my::strcmp(tmp, this->get_node(sum)->get_name()))
   {
+#ifdef DEBUG
+    printf("[Symbol Table] '%s' is already in the table\n", tmp);
+#endif
     delete[] tmp;
     return sum;
   }
@@ -104,11 +111,14 @@ int symbol_table::install_node(const char *start, const char *end, node_type typ
   this->table[sum] = new node();
   this->get_node(sum)->set_name(tmp);
   this->get_node(sum)->set_type(type);
+#ifdef DEBUG
+  printf("[Symbol Table] Node '%s' was add to the table\n", tmp);
+#endif
   delete[] tmp;
   return sum;
 }
 
-// TODO: implement normal hash function, not this
+// TODO: What the hell is that XDDDDD.
 unsigned int symbol_table::hash(const char *start, const char *end)
 {
   unsigned int sum = 0;
@@ -117,23 +127,23 @@ unsigned int symbol_table::hash(const char *start, const char *end)
     sum += *start * 31 + 23;
     start++;
   } while(start != end + 1);
-  sum = sum % 100; // HASH
+  sum = sum % SYM_TBL_SIZE; // HASH
   return sum;
 }
 
 symbol_table::node* symbol_table::get_node(int index)
 {
-  if(index < 0 || index > 99) // invalid index, returning first element, HASH
+  if(index < 0 || index > SYM_TBL_SIZE - 1) // invalid index, returning first element, HASH
   {
     return this->table[0];
   }
   return this->table[index];
 }
 
-void symbol_table::dump_table() // TODO: maybe remove in future.
+void symbol_table::dump_table()
 {
   printf("\n---Table Dump---\n\n");
-  for(int i = 0; i < 100; i++) // HASH
+  for(int i = 0; i < SYM_TBL_SIZE; i++) // HASH
   {
     if(this->get_node(i) != nullptr)
     {
@@ -147,5 +157,5 @@ void symbol_table::dump_table() // TODO: maybe remove in future.
       printf("\n");
     }
   }
-  printf("\n---End of Dump---\n");
+  printf("\n---End of Dump---\n\n");
 }

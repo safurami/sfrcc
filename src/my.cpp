@@ -14,7 +14,7 @@ bool my::isdigit(char sym)
 
 bool my::isalnum(char sym)
 {
-  return (sym >= '0' && sym <= '9') || (sym >= 'a' && sym <= 'z') || (sym >= 'A' && sym <= 'Z') || sym == '_';
+  return (sym >= '0' && sym <= '9') || (sym >= 'a' && sym <= 'z') || (sym >= 'A' && sym <= 'Z') || (sym == '_');
 }
 
 
@@ -91,4 +91,15 @@ void my::assert(const bool expr, const char *file, const int line, const char *f
     printf("%s:%d : Assert failed in function %s\n", file, line, func);
     std::abort();
   }
+}
+
+int my::atoi(const char* input)
+{
+  int sum = 0;
+  for(;*input != '\0'; input++)
+  {
+    sum *= 10;
+    sum += *input - 48;
+  }
+  return sum;
 }

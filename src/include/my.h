@@ -3,7 +3,7 @@
 
 #include <chrono>
 
-#define my_assert(expr) my::assert(expr, __FILE__, __LINE__, __func__) // To use assert, use this macro
+#define my_assert(expr) (my::assert(expr, __FILE__, __LINE__, __func__)) // To use assert, use this macro
 
 namespace my
 {
@@ -30,6 +30,14 @@ public:
   {
     delete[] this->m_array;
   }
+  T& front()
+  {
+    return m_array[0];
+  }
+  T& back()
+  {
+    return m_array[m_size - 1];
+  }
   T& get(int index)
   {
     if(index > this->m_size - 1 || index < 0)
@@ -38,7 +46,15 @@ public:
     }
     return this->m_array[index];
   }
-  void push_back(T val)
+  T* get_raw_pointer(int index)
+  {
+    if(index > this->m_size - 1 || index < 0)
+    {
+      return this->m_array;
+    }
+    return this->m_array + index;
+  }
+  void push_back(T &val)
   {
     if(this->m_size == this->m_capacity)
     {
@@ -90,6 +106,8 @@ int strncpy(char *, const char *, int);
 bool isalpha(char);
 int strcmp(const char *, const char *);
 void assert(const bool, const char *, const int, const char *);
+int atoi(const char *);
+
 
 }
 

@@ -1,6 +1,8 @@
 #ifndef H_SMTBL
 #define H_SMTBL
 
+#define SYM_TBL_SIZE 100 // Change to change symbol table capacity. TODO: remake this.
+
 enum class node_type: unsigned char
 {
   NUMBER = 0,
@@ -33,7 +35,7 @@ private:
     void set_type(node_type);
     node_type get_type();
   };
-  node* table[100]; // Array for lexemes, keyword HASH to find all depends parts of codes
+  node* table[SYM_TBL_SIZE]; // Array for lexemes, keyword HASH to find all depends parts of codes.
 public:
   symbol_table();
   ~symbol_table();

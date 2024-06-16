@@ -1,0 +1,10 @@
+--- 11 Jun 2024 ---
+A few days ago, i found out how does AST works. Finally.
+Today i was playing with it. Wrote some code to generate
+a AST for very simple grammar. That worked. I do not like 
+OOP that much, so i decided to make that part of compiler
+in C style, without polymorphism, inheritence and etc.
+Tomorrow i gonna remake this little parser, make it better,
+and then i am going to slowly add a logic to syntax trees.
+I dont know how i am gonna implement statements, like if
+statement and etc.

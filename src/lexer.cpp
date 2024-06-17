@@ -80,8 +80,9 @@ token* lexer::get_next_token()
 {
 again:
   int saved_line;
-  this->m_lexeme_start = this->m_input;
-  switch(this->advance())
+  char sym = this->advance();
+  this->m_lexeme_start = this->m_input-1;
+  switch(sym)
   {
   case EOF: this->m_current_token->set_parameters(token_type::DOLLAR, this->m_current_line); break;
   case ' ': goto again; break;

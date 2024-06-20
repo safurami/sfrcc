@@ -6,6 +6,7 @@ enum class token_type: unsigned char {
   OPEN_PAREN = 0,
   CLOSE_PAREN,
   SEMICOLON,
+  COLON,
   OPEN_CURLYB,
   CLOSE_CURLYB,
   ASSIGN,

@@ -30,7 +30,7 @@ public:
   bool match(char);
   void collect_id();
   int collect_literal();
-  void report_error();
+  void report_error(char);
   void report_error(int, const char*);
   void collect_number();
   bool check_rest(const char *);

@@ -59,11 +59,8 @@ char lexer::advance()
 
 char lexer::peek()
 {
-  char *tmp;
-  for(tmp = this->m_input; *tmp == '\n'; tmp++) {}
-
-  if(*tmp == '\0') return EOF;
-  return *tmp;
+  if(*this->m_input == '\0') return EOF;
+  return *this->m_input;
 }
 
 bool lexer::match(char sym)
@@ -78,8 +75,8 @@ bool lexer::match(char sym)
 
 token* lexer::get_next_token()
 {
+  int saved_line; // For a few cases.
 again:
-  int saved_line;
   char sym = this->advance();
   this->m_lexeme_start = this->m_input-1;
   switch(sym)
@@ -93,6 +90,7 @@ again:
   case '!': this->m_current_token->set_parameters((this->match('=') ? token_type::NEQ : token_type::BANG), this->m_current_line); break;
   case '>': this->m_current_token->set_parameters((this->match('=') ? token_type::GEQ : token_type::GREATER), this->m_current_line); break;
   case '<': this->m_current_token->set_parameters((this->match('=') ? token_type::LEQ : token_type::LESS), this->m_current_line); break;
+  case ':': this->m_current_token->set_parameters(token_type::COLON, this->m_current_line); break;
   case ';': this->m_current_token->set_parameters(token_type::SEMICOLON, this->m_current_line); break;
   case '{': this->m_current_token->set_parameters(token_type::OPEN_CURLYB, this->m_current_line); break;
   case '}': this->m_current_token->set_parameters(token_type::CLOSE_CURLYB, this->m_current_line); break;
@@ -125,7 +123,7 @@ again:
     this->m_current_token->set_attribute(this->advance());
     if(!this->match('\''))
     {
-      this->report_error();
+      this->report_error(this->peek());
       while(this->advance() != '\'') {}
       goto again;
     }
@@ -139,6 +137,167 @@ again:
       goto again;
     }
     break;
+  case 'i':
+    if(this->check_rest("nt") && !my::isalnum(*this->m_input))
+    {
+      this->m_current_token->set_parameters(token_type::INT, this->m_current_line);
+    }
+    else if(this->match('f') && !my::isalnum(*this->m_input))
+    {
+      this->m_current_token->set_parameters(token_type::IF, this->m_current_line);
+    }
+    else
+    {
+      this->collect_id();
+    }
+    break;
+  case 'c':
+    if(this->check_rest("har") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::CHAR, this->m_current_line);
+    }
+    else if(this->check_rest("onst") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::CONST, this->m_current_line);
+    }
+    else if(this->check_rest("ase") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::CASE, this->m_current_line);
+    }
+    else
+    {
+      this->collect_id();
+    }
+    break;
+  case 'v':
+    if(this->check_rest("oid") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::VOID, this->m_current_line);
+    }
+    else
+    {
+      this->collect_id();
+    }
+    break;
+  case 'u':
+    if(this->check_rest("nsigned") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::UNSIGNED, this->m_current_line);
+    }
+    else
+    {
+      this->collect_id();
+    }
+    break;
+  case 'f':
+    if(this->check_rest("loat") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::FLOAT, this->m_current_line);
+    }
+    else if(this->check_rest("or") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::FOR, this->m_current_line);
+    }
+    else
+    {
+      this->collect_id();
+    }
+    break;
+  case 'd':
+    if(this->check_rest("ouble") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::DOUBLE, this->m_current_line);
+    }
+    else
+    {
+      this->collect_id();
+    }
+    break;
+  case 's':
+    if(this->check_rest("igned") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::SIGNED, this->m_current_line);
+    }
+    else if(this->check_rest("hort") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::SHORT, this->m_current_line);
+    }
+    else if(this->check_rest("witch") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::SWITCH, this->m_current_line);
+    }
+    else if(this->check_rest("truct") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::STRUCT, this->m_current_line);
+    }
+    else
+    {
+      this->collect_id();
+    }
+    break;
+  case 'e':
+    if(this->check_rest("lse") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::ELSE, this->m_current_line);
+    }
+    else
+    {
+      this->collect_id();
+    }
+    break;
+  case 'r':
+    if(this->check_rest("eturn") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::RETURN, this->m_current_line);
+    }
+    else
+    {
+      this->collect_id();
+    }
+    break;
+  case 'w':
+    if(this->check_rest("hile") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::WHILE, this->m_current_line);
+    }
+    else
+    {
+      this->collect_id();
+    }
+    break;
+  case 'b':
+    if(this->check_rest("reak") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::BREAK, this->m_current_line);
+    }
+    else
+    {
+      this->collect_id();
+    }
+    break;
+  case 'l':
+    if(this->check_rest("ong") && !my::isalnum(this->peek()))
+    {
+      this->m_current_token->set_parameters(token_type::LONG, this->m_current_line);
+    }
+    else
+    {
+      this->collect_id();
+    }
+    break;
+  default:
+    if(my::isalpha(sym))
+    {
+      this->collect_id();
+    }
+    else if(my::isdigit(sym))
+    {
+      this->collect_number();
+    }
+    else
+    {
+      this->report_error(sym);
+    }
   }
 
 #ifdef DEBUG
@@ -176,14 +335,14 @@ void lexer::collect_id()
 void lexer::collect_number()
 {
   this->m_input = this->m_lexeme_start;
-  for(; my::isdigit(this->peek()); this->advance()) {}
+  for(; my::isdigit(*this->m_input); this->advance()) {}
   this->m_current_token->set_attribute(this->m_table->install_node(this->m_lexeme_start, this->m_input - 1, node_type::NUMBER));
   this->m_current_token->set_parameters(token_type::NUMBER, this->m_current_line);
 }
 
-void lexer::report_error()
+void lexer::report_error(char sym)
 {
-  printf("[Line %d] Unexpected character '%c'.\n", this->m_current_line, this->peek());
+  printf("[Line %d] Unexpected character '%c'.\n", this->m_current_line, sym);
   this->m_was_error = true;
 }
 
@@ -216,9 +375,10 @@ bool lexer::was_error()
 
 void lexer::skip_line_comment()
 {
+  // TODO: make that after skipping comment, m_input will point to the next character after terminating comments characters.
 }
 
 void lexer::skip_multline_comment()
 {
-
+  // TODO: make that after skipping comment, m_input will point to the next character after terminating comments characters.
 }

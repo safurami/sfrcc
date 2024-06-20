@@ -106,6 +106,7 @@ const char* token_type_to_string(token_type t) // REMOVEME, just for debug
   case (int)token_type::CASE: return "Case keyword";
   case (int)token_type::STRUCT: return "Struct keyword";
   case (int)token_type::BANG: return "Bang";
+  case (int)token_type::COLON: return "Colon";
   }
   return "FAIL";
 }

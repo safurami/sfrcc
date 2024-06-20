@@ -8,16 +8,12 @@ compiler::compiler(const char *filename)
   this->m_lexer = new lexer(filename, this->m_table);
   this->m_parser = new parser(this->m_lexer, this->m_table);
 
-  if(this->m_lexer->was_error())
+  if(this->m_lexer->was_error()) // If failed to open the file.
   {
     return;
   }
 
-  token *tok;
-  while((tok = this->m_lexer->get_next_token()), tok->get_type() != token_type::DOLLAR) { }
-  this->m_table->dump_table();
-
-  //this->compile();
+  this->compile();
 }
 
 compiler::~compiler()

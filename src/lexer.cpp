@@ -375,10 +375,16 @@ bool lexer::was_error()
 
 void lexer::skip_line_comment()
 {
-  // TODO: make that after skipping comment, m_input will point to the next character after terminating comments characters.
+  while(this->peek() != '\n') { this->advance(); }
 }
 
 void lexer::skip_multline_comment()
 {
-  // TODO: make that after skipping comment, m_input will point to the next character after terminating comments characters.
+  while(1)
+  {
+    if(this->advance() == '*' && this->advance() == '/')
+    {
+      break;
+    }
+  }
 }

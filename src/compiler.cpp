@@ -13,7 +13,10 @@ compiler::compiler(const char *filename)
     return;
   }
 
-  this->compile();
+  while(this->m_lexer->get_next_token()->get_type() != token_type::DOLLAR) { }
+  this->m_table->dump_table();
+
+//  this->compile();
 }
 
 compiler::~compiler()
@@ -33,7 +36,7 @@ void compiler::compile()
     vector.push_back(*tok);
   } while(tok->get_type() != token_type::DOLLAR);
 
-  if(this->m_lexer->was_error())
+  if(this->m_lexer->was_error()) // If there was a bad token.
   {
     return;
   }

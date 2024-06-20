@@ -34,13 +34,9 @@ public:
   void report_error(int, const char*);
   void collect_number();
   bool check_rest(const char *);
-
   token* get_next_token();
   void skip_line_comment();
   void skip_multline_comment();
-
-  bool reset_lexeme();
-  void free_all();
 };
 
 

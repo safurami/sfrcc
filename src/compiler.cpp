@@ -13,10 +13,11 @@ compiler::compiler(const char *filename)
     return;
   }
 
-  while(this->m_lexer->get_next_token()->get_type() != token_type::DOLLAR) { }
-  this->m_table->dump_table();
+  // To check lexer
+  //while(this->m_lexer->get_next_token()->get_type() != token_type::DOLLAR) { }
+  //this->m_table->dump_table();
 
-//  this->compile();
+  this->compile();
 }
 
 compiler::~compiler()

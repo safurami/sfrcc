@@ -4,6 +4,7 @@
 #include "lexer.h"
 #include "symbol_table.h"
 #include "ast.h"
+#include "my.h"
 
 class parser
 {
@@ -13,7 +14,6 @@ class parser
   token* m_input;
 public:
   parser(lexer*, symbol_table*);
-  ast_node* parse();
   void set_input(token*);
   bool was_error();
 
@@ -25,15 +25,22 @@ public:
   void consume(token_type, const char*);
   void error(token, const char*);
 
+  my::vector<statement_node*>* parse();
 
-  // grammar
-  ast_node* expression();
-  ast_node* equality();
-  ast_node* comparison();
-  ast_node* term();
-  ast_node* factor();
-  ast_node* unary();
-  ast_node* primary();
+
+  my::vector<statement_node*>* program();
+  statement_node* statement();
+  statement_node* declaration();
+  
+  // Grammar for expressions.
+  expression_node* expression();
+  expression_node* equality();
+  expression_node* comparison();
+  expression_node* term();
+  expression_node* factor();
+  expression_node* unary();
+  expression_node* primary();
+
 };
 
 #endif

@@ -2,29 +2,47 @@
 
 #include "include/my.h"
 
+void compiler::free_all()
+{
+  if(this->m_table != nullptr)
+  {
+    delete this->m_table;
+    this->m_table = nullptr;
+  }
+  if(this->m_lexer != nullptr)
+  {
+    delete this->m_lexer;
+    this->m_lexer = nullptr;
+  }
+  if(this->m_parser != nullptr)
+  {
+    delete this->m_parser;
+    this->m_parser = nullptr;
+  }
+}
+
 compiler::compiler(const char *filename)
 {
   this->m_table = new symbol_table();
   this->m_lexer = new lexer(filename, this->m_table);
   this->m_parser = new parser(this->m_lexer, this->m_table);
 
-  if(this->m_lexer->was_error()) // If failed to open the file.
+//  if(this->m_lexer->was_error()) // If failed to open the file.
+// {
+//    this->free_all();
+//    return;
+//  }
+
+
+  if(!this->m_lexer->was_error())
   {
-    return;
+    this->compile();
   }
-
-  // To check lexer
-  //while(this->m_lexer->get_next_token()->get_type() != token_type::DOLLAR) { }
-  //this->m_table->dump_table();
-
-  this->compile();
 }
 
 compiler::~compiler()
 {
-  delete this->m_table;
-  delete this->m_lexer;
-  delete this->m_parser;
+  this->free_all();
 }
 
 void compiler::compile()
@@ -41,17 +59,35 @@ void compiler::compile()
   {
     return;
   }
-
   this->m_table->dump_table();
-
   this->m_parser->set_input(vector.get_raw_pointer(0));
 
-  ast_node* root = this->m_parser->parse();
+  my::vector<statement_node*>* statements_array = this->m_parser->parse(); // TODO: Would be better to use local variable, to avoid leaks.
 
-  if(this->m_parser->was_error()) return;
+  if(this->m_parser->was_error())
+  {
+    return;
+  }
 
-  print_ast(root, 0);
+  int size_of_statements = statements_array->get_size();
 
-  free_ast(root);
+#ifdef DEBUG
+  printf("[Parser] Number of statements: %d\n", size_of_statements);
+#endif
+
+  printf("Program: {\n");
+  for(int i = 0; i < size_of_statements; i++)
+  {
+    print_stmt_ast(statements_array->get(i), 3);
+  }
+  printf("}\n");
+
+
+  for(int i = 0; i < size_of_statements; i++)
+  {
+    free_stmt_ast(statements_array->get(i));
+  }
+  delete statements_array; // deleting array with statements.
+
 
 }

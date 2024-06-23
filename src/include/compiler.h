@@ -14,6 +14,7 @@ public:
   compiler(const char *);
   ~compiler();
   void compile();
+  void free_all();
 };
 
 #endif

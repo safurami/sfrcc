@@ -10,6 +10,7 @@
 lexer::lexer(const char *f, symbol_table* table)
 {
   this->m_file.open(f);
+  this->m_was_error = false;
   if(!this->m_file.is_open())
   {
     printf("File '%s' was not found\n", f);
@@ -360,6 +361,7 @@ bool lexer::check_rest(const char* rest)
     if(this->peek() != rest[i])
     {
       // TODO: recover saved pointer, but advance() could increment line counter.
+      // But, normally user will not split one token in two lines.
       this->m_input = save;
       return false;
     }

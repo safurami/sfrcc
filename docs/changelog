@@ -16,3 +16,8 @@ using method from Dragon Book, with two buffer, each
 4096 bytes length. Now i gonna allocating buffer for
 the whole file for one time. I had a lot of problems
 with poitners (forward and lexeme_begin).
+
+
+--- 20 Jun 2024 ---
+Lexer is done. Now i am going to make a parser. Currently
+i read "Creafting Interpreters".

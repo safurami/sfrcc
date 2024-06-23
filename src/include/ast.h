@@ -3,21 +3,16 @@
 
 #include "token.h"
 
+#define PRINTING_OFFSET 3
 
-#define print_offset \
-for(int i = 0; i < offset; i++) \
-{ \
-printf(" "); \
-}
-
-struct ast_node;
+struct expression_node;
 
 struct unary_node
 {
   token op;
-  ast_node* right;
+  expression_node* right;
   unary_node(): right(nullptr) {}
-  unary_node(token op, ast_node* right)
+  unary_node(token op, expression_node* right)
   {
     this->op = op;
     this->right = right;
@@ -26,11 +21,11 @@ struct unary_node
 
 struct binary_node
 {
-  ast_node* left;
+  expression_node* left;
   token op;
-  ast_node* right;
+  expression_node* right;
   binary_node(): left(nullptr), right(nullptr) {}
-  binary_node(ast_node* left, token op, ast_node* right)
+  binary_node(expression_node* left, token op, expression_node* right)
   {
     this->left = left;
     this->op = op;
@@ -50,15 +45,15 @@ struct literal_node
 
 struct grouping_node
 {
-  ast_node* expr;
+  expression_node* expr;
   grouping_node(): expr(nullptr) {}
-  grouping_node(ast_node* expr)
+  grouping_node(expression_node* expr)
   {
     this->expr = expr;
   }
 };
 
-struct ast_node
+struct expression_node
 {
   enum
   {
@@ -79,12 +74,50 @@ struct ast_node
   } data;
 };
 
-ast_node* create_literal(token&);
-ast_node* create_unary(token&, ast_node*);
-ast_node* create_binary(ast_node*, token&, ast_node*);
-ast_node* create_grouping(ast_node*);
-void free_ast(ast_node*);
+expression_node* create_literal(token&);
+expression_node* create_unary(token&, expression_node*);
+expression_node* create_binary(expression_node*, token&, expression_node*);
+expression_node* create_grouping(expression_node*);
 
-void print_ast(ast_node*, int); // Just for debug
+// ------ //
+
+struct expression_statement_node
+{
+  expression_node* expression;
+  expression_statement_node(): expression(nullptr) {}
+  expression_statement_node(expression_node* expr): expression(expr) {}
+};
+
+struct var_declaration_node
+{
+  token type;
+  token name;
+  expression_node* init_val;
+}
+
+struct statement_node
+{
+  enum
+  {
+    EXPRESSION_STMT,
+  } tag;
+  union data_t
+  {
+    struct { expression_node* expr; } expr_stmt;
+
+    data_t() {}
+  } data;
+};
+
+statement_node* create_expr_stmt(expression_node*);
+
+void free_expr_ast(expression_node*);
+void free_stmt_ast(statement_node*);
+
+void print_stmt_ast(statement_node*, int);
+void print_expr_ast(expression_node*, int);
+void print_offset(int);
+
+void print_ast(expression_node*, int); // Just for debug // TODO mofidy to work with statements
 
 #endif

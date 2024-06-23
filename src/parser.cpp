@@ -1,47 +1,27 @@
 #include "include/parser.h"
 #include "include/ast.h"
-
-/*
-  expression     → equality ;
-  equality       → comparison ( ( "!=" | "==" ) comparison )* ;
-  comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
-  term           → factor ( ( "-" | "+" ) factor )* ;
-  factor         → unary ( ( "/" | "*" ) unary )* ;
-  unary          → ( "!" | "-" ) unary
-                   | primary ;
-  primary        → NUMBER | STRING | "true" | "false" | "nil"
-                 | "(" expression ")" ;
-*/
+#include "include/my.h"
 
 parser::parser(lexer *lex, symbol_table *table)
 {
   this->m_lexer = lex;
   this->m_table = table;
+  this->m_was_error = false;
 }
 
-ast_node* parser::parse()
+my::vector<statement_node*>* parser::parse()
 {
-  ast_node* root = this->expression();
-  if(!this->check(token_type::DOLLAR))
-  {
-    this->error(this->peek(), "");
-  }
-  if(this->m_was_error)
-  {
-    free_ast(root);
-    return nullptr;
-  }
-  return root;
+  return this->program();
 }
 
-ast_node* parser::expression()
+expression_node* parser::expression()
 {
   return this->equality();
 }
 
-ast_node* parser::equality()
+expression_node* parser::equality()
 {
-  ast_node* expr = comparison();
+  expression_node* expr = comparison();
   while(this->match(token_type::NEQ) || this->match(token_type::IS_EQUAL))
   {
     token op = this->previous();
@@ -51,9 +31,9 @@ ast_node* parser::equality()
 
 }
 
-ast_node* parser::comparison()
+expression_node* parser::comparison()
 {
-  ast_node* expr = term();
+  expression_node* expr = term();
   while(this->match(token_type::GREATER)
          || this->match(token_type::GEQ)
          || this->match(token_type::LESS)
@@ -65,9 +45,9 @@ ast_node* parser::comparison()
   return expr;
 }
 
-ast_node* parser::term()
+expression_node* parser::term()
 {
-  ast_node* expr = factor();
+  expression_node* expr = factor();
   while(this->match(token_type::PLUS) || this->match(token_type::MINUS))
   {
     token op = this->previous();
@@ -76,9 +56,9 @@ ast_node* parser::term()
   return expr;
 }
 
-ast_node* parser::factor()
+expression_node* parser::factor()
 {
-  ast_node* expr = unary();
+  expression_node* expr = unary();
   while(this->match(token_type::DIVIDE) || this->match(token_type::STAR))
   {
     token op = this->previous();
@@ -87,27 +67,27 @@ ast_node* parser::factor()
   return expr;
 }
 
-ast_node* parser::unary()
+expression_node* parser::unary()
 {
   if(this->match(token_type::BANG) || this->match(token_type::MINUS))
   {
     token op = this->previous();
-    ast_node* expr = create_unary(op, this->unary());
+    expression_node* expr = create_unary(op, this->unary());
     return expr;
   }
   return this->primary();
 }
 
-ast_node* parser::primary()
+expression_node* parser::primary()
 {
-  if(this->match(token_type::NUMBER))
+  if(this->match(token_type::NUMBER) || this->match(token_type::LITERAL) || this->match(token_type::IDENTIFIER))
   {
-    ast_node* literal= create_literal(this->previous());
+    expression_node* literal = create_literal(this->previous());
     return literal;
   }
   else if(this->match(token_type::OPEN_PAREN))
   {
-    ast_node* expr = this->expression();
+    expression_node* expr = this->expression();
     this->consume(token_type::CLOSE_PAREN, "Expect ')'");
     return create_grouping(expr);
   }
@@ -180,4 +160,52 @@ void parser::error(token error_place, const char *expect)
 bool parser::was_error()
 {
   return this->m_was_error;
+}
+
+my::vector<statement_node*>* parser::program()
+{
+  my::vector<statement_node*>* vec = new my::vector<statement_node*>(20);
+  statement_node* stmt;
+  while(!this->check(token_type::DOLLAR))
+  {
+    if(this->was_error())
+    {
+      break;
+    }
+    stmt = this->declaration();
+    vec->push_back(stmt);
+  }
+  this->consume(token_type::DOLLAR, "Expected End Of File");
+  if(this->was_error())
+  {
+    statement_node** pointer = vec->get_raw_pointer(0); // Freeing all previous statement nodes, and returning nullptr;
+    for(int i = 0; i < vec->get_size(); i++)
+    {
+      free_stmt_ast(pointer[i]);
+    }
+    delete vec; // If error, freeing the vector.
+    return nullptr;
+  }
+
+  return vec;
+}
+
+statement_node* parser::declaration()
+{
+  if(this->match(token_type::INT) || this->match(token_type::CHAR) || this->match(token_type::VOID))
+  {
+    token type = this->previous();
+    this->consume(token_type::IDENTIFIER, "Expected identifier");
+    token id = this->previous();
+    this->consume(token_type::ASSIGN, "Expected assign");
+  }
+  return this->statement();
+}
+
+statement_node* parser::statement()
+{
+  expression_node* expr = this->expression();
+  statement_node* statement_expr_node = create_expr_stmt(expr);
+  this->consume(token_type::SEMICOLON, "Expected semicolon after expresison");
+  return statement_expr_node;
 }

@@ -1,6 +1,5 @@
 build/*.o
 test.c
-grammar
 main
 refresh_qt.sh
 changes

@@ -17,7 +17,15 @@ using method from Dragon Book, with two buffer, each
 the whole file for one time. I had a lot of problems
 with poitners (forward and lexeme_begin).
 
-
 --- 20 Jun 2024 ---
 Lexer is done. Now i am going to make a parser. Currently
 i read "Creafting Interpreters".
+
+--- 23 Jun 2024 ---
+Today i started remaking the parser. I was following methods
+in "Crafting Interpreters", and had a problems with nullptr
+and logic between parser and nodes. Now i gonna return nullptr
+if there was an error. For example if i got a literal node,
+let say identifier, then i got a + sign, and then i got nothing,
+then i gonna free the first identifier, and return nullptr instead
+of binary node with one identifier and one node with nullptr.

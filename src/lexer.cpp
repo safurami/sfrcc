@@ -298,6 +298,7 @@ again:
     else
     {
       this->report_error(sym);
+      goto again;
     }
   }
 

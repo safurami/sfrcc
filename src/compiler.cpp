@@ -62,32 +62,4 @@ void compiler::compile()
   this->m_table->dump_table();
   this->m_parser->set_input(vector.get_raw_pointer(0));
 
-  my::vector<statement_node*>* statements_array = this->m_parser->parse(); // TODO: Would be better to use local variable, to avoid leaks.
-
-  if(this->m_parser->was_error())
-  {
-    return;
-  }
-
-  int size_of_statements = statements_array->get_size();
-
-#ifdef DEBUG
-  printf("[Parser] Number of statements: %d\n", size_of_statements);
-#endif
-
-  printf("Program: {\n");
-  for(int i = 0; i < size_of_statements; i++)
-  {
-    print_stmt_ast(statements_array->get(i), 3);
-  }
-  printf("}\n");
-
-
-  for(int i = 0; i < size_of_statements; i++)
-  {
-    free_stmt_ast(statements_array->get(i));
-  }
-  delete statements_array; // deleting array with statements.
-
-
 }

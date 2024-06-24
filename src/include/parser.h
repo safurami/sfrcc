@@ -22,6 +22,20 @@ public:
   token& previous();
   token& advance();
 
+  void report_error(const char*);
+  bool consume(token, const char*);
+
+  expression_node* parse();
+
+
+  expression_node* expression();
+  expression_node* equality();
+  expression_node* comparison();
+  expression_node* term();
+  expression_node* factor();
+  expression_node* unary();
+  expression_node* primary();
+
 };
 
 #endif

@@ -3,6 +3,8 @@
 
 #include "token.h"
 
+#define OFFSET_INC 3
+
 struct expression_node;
 
 struct primary_node
@@ -61,5 +63,8 @@ expression_node* create_unary_node(token, expression_node*);
 expression_node* create_grouping_node(expression_node*);
 
 void free_expression_ast(expression_node*);
+void print_expression_ast(expression_node*, int);
+
+void print_offset(int);
 
 #endif

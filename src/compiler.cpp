@@ -27,13 +27,6 @@ compiler::compiler(const char *filename)
   this->m_lexer = new lexer(filename, this->m_table);
   this->m_parser = new parser(this->m_lexer, this->m_table);
 
-//  if(this->m_lexer->was_error()) // If failed to open the file.
-// {
-//    this->free_all();
-//    return;
-//  }
-
-
   if(!this->m_lexer->was_error())
   {
     this->compile();
@@ -62,4 +55,19 @@ void compiler::compile()
   this->m_table->dump_table();
   this->m_parser->set_input(vector.get_raw_pointer(0));
 
+  expression_node* root = this->m_parser->parse(); // Interface between parser and backend.
+
+  printf("REMOVEME: Got a pointer: %p\n", root);
+  printf("REMOVEME: At the end = %d\n", this->m_parser->check(token_type::DOLLAR));
+
+  if(root == nullptr) // TODO: change to was_error().
+  {
+    return;
+  }
+
+#ifdef DEBUG
+  printf("\n\n");
+  print_expression_ast(root, 0);
+#endif
+  free_expression_ast(root);
 }

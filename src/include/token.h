@@ -75,7 +75,7 @@ public:
   int get_line();
 };
 
-const char* token_type_to_string(token_type); // REMOVEME, just for debug
+const char* token_type2string(token_type); // REMOVEME, just for debug
 
 
 #endif

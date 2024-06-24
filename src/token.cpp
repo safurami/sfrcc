@@ -55,7 +55,7 @@ void token::operator =(const token& other)
   this->m_line = other.m_line;
 }
 
-const char* token_type_to_string(token_type t) // REMOVEME, just for debug
+const char* token_type2string(token_type t) // REMOVEME, just for debug
 {
   switch((int)t)
   {

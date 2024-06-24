@@ -303,7 +303,7 @@ again:
   }
 
 #ifdef DEBUG
-  printf("[Lexer] Returning <Line: %03d, Type: %s, Attribute: %03d>\n", this->m_current_token->get_line(), token_type_to_string(this->m_current_token->get_type()), this->m_current_token->get_attribute());
+  printf("[Lexer] Returning <Line: %03d, Type: %s, Attribute: %03d>\n", this->m_current_token->get_line(), token_type2string(this->m_current_token->get_type()), this->m_current_token->get_attribute());
 #endif
 
   return this->m_current_token;

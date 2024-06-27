@@ -21,12 +21,14 @@ public:
   token& peek();
   token& previous();
   token& advance();
+  void free_statements(my::vector<statement_node*>*);
 
   void report_error(const char*);
-  bool consume(token, const char*);
+  bool consume(token_type, const char*);
 
-  expression_node* parse();
-
+  my::vector<statement_node*>* parse();
+  my::vector<statement_node*>* program();
+  statement_node* statement();
 
   expression_node* expression();
   expression_node* equality();

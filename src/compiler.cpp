@@ -55,19 +55,26 @@ void compiler::compile()
   this->m_table->dump_table();
   this->m_parser->set_input(vector.get_raw_pointer(0));
 
-  expression_node* root = this->m_parser->parse(); // Interface between parser and backend.
+  auto statements = this->m_parser->parse();
 
-  printf("REMOVEME: Got a pointer: %p\n", root);
-  printf("REMOVEME: At the end = %d\n", this->m_parser->check(token_type::DOLLAR));
+  printf("REMOVEME: Got a pointer: %p\n", (void*)statements);
+  printf("REMOVEME: Was error: %d\n", this->m_parser->was_error());
+  printf("REMOVEME: On the end: %d\n", this->m_parser->peek().get_type() == token_type::DOLLAR);
 
-  if(root == nullptr) // TODO: change to was_error().
+  if(statements == nullptr) // TODO: change to was_error().
   {
     return;
   }
 
 #ifdef DEBUG
   printf("\n\n");
-  print_expression_ast(root, 0);
+  int size = statements->get_size();
+  for(int i = 0; i < size; i++)
+  {
+    print_statement_ast(statements->get(i), 0);
+  }
 #endif
-  free_expression_ast(root);
+
+  this->m_parser->free_statements(statements);
+  delete statements;
 }

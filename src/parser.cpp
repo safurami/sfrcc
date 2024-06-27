@@ -54,12 +54,86 @@ bool parser::was_error()
 }
 
 /*
+ * Return true if token was consumed.
+ * If token was not consumed, calls r*eport_error and return false.
+ */
+bool parser::consume(token_type type, const char* message)
+{
+  if(!this->match(type))
+  {
+    this->report_error(message);
+    return false;
+  }
+  return true;
+}
+
+void parser::report_error(const char *message)
+{
+  this->m_was_error = true;
+  printf("[Line %d] Unexpected token %s, %s\n", this->peek().get_line(), token_type2string(this->peek().get_type()), message);
+}
+
+void parser::free_statements(my::vector<statement_node*>* vector)
+{
+  int size = vector->get_size();
+  for(int i = 0; i < size; i++)
+  {
+    free_statement_ast(vector->get(i));
+  }
+}
+
+/*
  * Stuff for grammar.
  */
 
-expression_node* parser::parse()
+my::vector<statement_node*>* parser::parse()
 {
-  return this->expression();
+  return this->program();
+}
+
+my::vector<statement_node*>* parser::program()
+{
+  auto statements_list = new my::vector<statement_node*>(20);
+  while(this->peek().get_type() != token_type::DOLLAR && !this->was_error()) // TODO: !this->was_error() is not necessery i think.
+  {
+    statement_node* node = this->statement(); // TODO: possible bug in future. Statement can return nullptr.
+    if(node == nullptr)
+    {
+      break;
+    }
+    statements_list->push_back(node);
+  }
+  if(!this->was_error()) // To avoid an error when there was already an error in the middle.
+  {
+    this->consume(token_type::DOLLAR, "Expected End Of File");
+  }
+  if(this->was_error())
+  {
+    this->free_statements(statements_list);
+    delete statements_list;
+    return nullptr;
+  }
+  return statements_list;
+}
+
+statement_node* parser::statement() // I guess in this method i should implement synchronization.
+{
+  token* saved_ptr = this->m_input; // Save pointer, to try every production.
+
+  // expr_stmt
+  { 
+    expression_node* expr = this->expression();
+    if(expr == nullptr)
+    {
+      return nullptr; // TODO: remake to make it possible to try another production.
+    }
+    if(!this->consume(token_type::SEMICOLON, "Expected semicolon after expression"))
+    {
+      free_expression_ast(expr);
+      return nullptr;
+    }
+    return create_expr_stmt_node(expr);
+  }
 }
 
 expression_node* parser::expression()
@@ -174,10 +248,23 @@ expression_node* parser::primary()
   {
     return create_primary_node(this->previous());
   }
-  // TODO: implement grouping.
+  else if(this->match(token_type::OPEN_PAREN))
+  {
+    expression_node* expr = this->expression();
+    if(expr == nullptr)
+    {
+      return nullptr;
+    }
+    if(!this->consume(token_type::CLOSE_PAREN, "Expected ')' after expression"))
+    {
+      free_expression_ast(expr);
+      return nullptr;
+    }
+    return create_grouping_node(expr);
+  }
   else
   {
-    // TODO: implement error reporting.
+    this->report_error("Expected expression");
     return nullptr;
   }
 }

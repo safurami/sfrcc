@@ -107,3 +107,39 @@ void print_expression_ast(expression_node* root, int offset)
       my_assert(false);
   }
 }
+
+statement_node* create_expr_stmt_node(expression_node* expr)
+{
+  statement_node* init = new statement_node();
+  init->tag = statement_node::EXPR_STMT;
+  init->data.expr_stmt.expr = expr;
+  return init;
+}
+
+void free_statement_ast(statement_node* root)
+{
+  switch(root->tag)
+  {
+    case statement_node::EXPR_STMT:
+      free_expression_ast(root->data.expr_stmt.expr);
+      delete root;
+      break;
+    default:
+      my_assert(false);
+  }
+}
+
+void print_statement_ast(statement_node* root, int offset)
+{
+  switch(root->tag)
+  {
+    case statement_node::EXPR_STMT:
+      print_offset(offset); printf("Node Type: Statement - Expression\n");
+      print_offset(offset); printf("Expression: {\n");
+      print_expression_ast(root->data.expr_stmt.expr, offset + OFFSET_INC);
+      print_offset(offset); printf("}\n");
+      break;
+    default:
+      my_assert(false);
+  }
+}

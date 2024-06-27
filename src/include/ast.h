@@ -5,6 +5,12 @@
 
 #define OFFSET_INC 3
 
+void print_offset(int);
+
+/*
+ * Expression node structures.
+ */
+
 struct expression_node;
 
 struct primary_node
@@ -65,6 +71,36 @@ expression_node* create_grouping_node(expression_node*);
 void free_expression_ast(expression_node*);
 void print_expression_ast(expression_node*, int);
 
-void print_offset(int);
+
+/*
+ * Statement node structures.
+ */
+
+struct statement_node;
+
+struct expr_stmt_node
+{
+  expression_node* expr;
+  expr_stmt_node(): expr(nullptr) {}
+  expr_stmt_node(expression_node* ex): expr(ex) {}
+};
+
+
+struct statement_node
+{
+  enum {
+    EXPR_STMT,
+  } tag;
+  union data_t
+  {
+    expr_stmt_node expr_stmt;
+    data_t() {}
+  } data;
+};
+
+statement_node* create_expr_stmt_node(expression_node*);
+
+void free_statement_ast(statement_node*);
+void print_statement_ast(statement_node*, int);
 
 #endif

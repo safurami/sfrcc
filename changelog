@@ -1,0 +1,13 @@
+--- 18 Jul 2024 ---
+I am tired of getters and setters in cpp,
+so i deceided since now make every field in
+every class public. I was thinking how should
+i do, take the input file and parse the whole
+file into tokens, or try to combine tokenizer
+and parser. I deceided to separate them, and
+parse the whole file. Yes, that will cost a
+more memory than it could, but if i combine
+them, it will cause complexity problems and
+i will strrugle to scan and parse source code
+at the same time. So i make it simple.
+

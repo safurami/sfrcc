@@ -21,7 +21,7 @@ public:
   int scanint(char val);
 };
 
-std::vector<token> *scan(Lexer *lexer);
 
+std::vector<token> *scan(Lexer *lexer);
 
 #endif /* SCANNER_H */

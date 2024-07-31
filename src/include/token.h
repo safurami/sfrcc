@@ -1,10 +1,12 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include <vector>
+
 enum class token_type {
   PLUS, MINUS, STAR, SLASH,
 
-  INTLIT,
+  INTLIT, SEMICOLON,
 
   END
 };
@@ -17,5 +19,6 @@ struct token
 
 const char *tok2string(token_type type);
 
+void dump_tokens(std::vector<token> *tokens);
 
 #endif /* TOKEN_T */

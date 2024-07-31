@@ -62,6 +62,10 @@ bool parse_flags(flags *parameters, int argc, const char **argv)
       parameters->output = new char[out_file_size + 1]();
       memcpy(parameters->output, argv[i], out_file_size + 1);
     }
+    if(match_param(argv[i], "--dump-tokens"))
+    {
+      parameters->dump_tokens = true;
+    }
   }
   return error;
 }
@@ -100,13 +104,33 @@ bool open_file(std::ifstream *file,const char *filename)
 
 void usage(const char *progname)
 {
-  printf("Usage: %s <file>.c [flag(s)]\n", progname);
+  printf("Usage: %s <file> [flag(s)]\n", progname);
   printf("\nFLAGS:\n");
   printf("\t--dump-ast : Print parsed AST.\n");
+  printf("\t--dump-tokens : Print parsed tokens.\n");
   printf("\t--output <file> : Specify output file name.\n");
 }
 
-int compile_file(const char *inputfile, flags *params)
+void dump_tokens(std::vector<token> *tokens)
+{
+  printf("\n---Dump Tokens Start---\n");
+  token *ptr = tokens->data();
+  int size = tokens->size();
+  for(int i = 0; i < size; i++)
+  {
+    if(ptr[i].type == token_type::INTLIT)
+    {
+      printf("Type: %s, Value: %d\n", tok2string(ptr[i].type), ptr[i].intval);
+    }
+    else
+    {
+      printf("Type: %s\n", tok2string(ptr[i].type));
+    }
+  }
+  printf("---Dump Tokens End---\n\n");
+}
+
+int compile_file(const char *inputfile, flags *parameters)
 {
 
   std::ifstream file;
@@ -138,6 +162,11 @@ int compile_file(const char *inputfile, flags *params)
     return 1;
   }
 
+  if(parameters->dump_tokens)
+  {
+    dump_tokens(tokens);
+  }
+
   Parser parser(tokens->data());
   ast_node *root = parser.add_expression();
   delete tokens;
@@ -155,13 +184,14 @@ int compile_file(const char *inputfile, flags *params)
   /*
    * Serve --dump-ast flag.
    */
-  if(params->dump_ast)
+  if(parameters->dump_ast)
   {
+    printf("\n---Dump AST Start---\n");
     print_ast(root, 0);
-    printf("\n\n");
+    printf("---Dump AST End---\n\n");
   }
 
-  code_gen(root, params);
+  code_gen(root, parameters);
 
   free_ast(root);
 

@@ -94,6 +94,9 @@ int Lexer::get_tok(token *tok)
     case '/':
       tok->type = token_type::SLASH;
       break;
+    case ';':
+      tok->type = token_type::SEMICOLON;
+      break;
     default:
       if(my::isdigit(c))
       {
@@ -159,6 +162,6 @@ std::vector<token>* scan(Lexer *lexer)
  */
 const char *tok2string(token_type type)
 {
-  const char *tokens[] = {"Plus", "Minus", "Star", "Slash", "Int Lit", "End"};
+  const char *tokens[] = {"Plus", "Minus", "Star", "Slash", "Int Lit", "Semicolon", "End"};
   return tokens[(int)type];
 }

@@ -6,12 +6,13 @@
 struct flags
 {
   bool dump_ast;
+  bool dump_tokens;
   char *output;
 };
 
 
 void usage(const char *progname);
-int compile_file(const char *inputfile, flags *params);
+int compile_file(const char *inputfile, flags *parameters);
 bool open_file(std::ifstream *file,const char *filename);
 bool match_param(const char *argv, const char *match);
 

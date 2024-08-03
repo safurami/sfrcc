@@ -5,10 +5,8 @@
 
 Parser::Parser(token *tokens_list): input(tokens_list), was_error(false) {}
 
-/*
- * Method for increasing pointer that points to input.
- * If EOF, then nothing was increased.
- */
+// Method for increasing pointer that points to input.
+// If EOF, then nothing was increased.
 void Parser::next()
 {
   if(this->input->type == token_type::END)
@@ -18,11 +16,9 @@ void Parser::next()
   this->input++;
 }
 
-/*
- * Method for conditional increase pointer that points to input.
- * Returns true if types were matched and pointer increased,
- * otherwise returns false.
- */
+// Method for conditional increase pointer that points to input.
+// Returns true if types were matched and pointer increased,
+// otherwise returns false.
 bool Parser::match(token_type type)
 {
   if(this->input->type == type)
@@ -33,9 +29,7 @@ bool Parser::match(token_type type)
   return false;
 }
 
-/*
- * Returns previous tokens that was read.
- */
+// Returns previous tokens that was read.
 token *Parser::prev()
 {
   return this->input - 1;
@@ -68,9 +62,7 @@ ast_node *Parser::mul_expression()
 {
   ast_node *expr = this->primary();
 
-  /*
-   * Null pointer means that parse failed.
-   */
+  // Null pointer means that parse failed.
   if(expr == nullptr)
   {
     return nullptr;
@@ -91,9 +83,7 @@ ast_node *Parser::mul_expression()
   return expr;
 }
 
-/*
- * Primary level of expression.
- */
+// Primary level of expression.
 ast_node *Parser::primary()
 {
   if(this->match(token_type::INTLIT))

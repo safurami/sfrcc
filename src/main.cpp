@@ -140,23 +140,18 @@ int compile_file(const char *inputfile, flags *parameters)
   }
 
 
-  /*
-   * Scanning file to get vector of tokens
-   */
+  // Scanning file to get vector of tokens
   Lexer lexer(&file);
   std::vector<token> *tokens = scan(&lexer);
   file.close();
 
-  /*
-   * When nullptr is returned, was_error should always be true,
-   * but anyway additional check
-   */
+  // When nullptr is returned, was_error should always be true,
+  // but anyway additional check
   if(lexer.was_error)
   {
-    /*
-     * Asserting to ensure that when error in occured, nullptr is always returned.
-     * If nullptr is not returned, then possible there is a memory leak.
-     */
+    // Asserting to ensure that when error in occured,
+    // nullptr is always returned.
+    // If nullptr is not returned, then possible there is a memory leak.
     assert(tokens == nullptr);
     printf("Occured error while scanning\n");
     return 1;
@@ -171,9 +166,7 @@ int compile_file(const char *inputfile, flags *parameters)
   ast_node *root = parser.add_expression();
   delete tokens;
 
-  /*
-   * Now tokens are parsed. We dont need vector anymore.
-   */
+  // Now tokens are parsed. We dont need vector anymore.
   if(parser.was_error)
   {
     assert(root == nullptr);
@@ -181,9 +174,7 @@ int compile_file(const char *inputfile, flags *parameters)
     return 1;
   }
 
-  /*
-   * Serve --dump-ast flag.
-   */
+  // Serve --dump-ast flag.
   if(parameters->dump_ast)
   {
     printf("\n---Dump AST Start---\n");

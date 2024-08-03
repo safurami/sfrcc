@@ -30,11 +30,9 @@ char Lexer::next(void)
 
 void Lexer::putback_char(const char c)
 {
-  /*
-   * Assertion to ensure that there is not cases whene
-   * during calling putback_char() there is already character
-   * in this->putback.
-   */
+  // Assertion to ensure that there is not cases whene
+  // during calling putback_char() there is already character
+  // in this->putback.
   if(this->putback)
   {
     assert(false);
@@ -52,11 +50,9 @@ char Lexer::skip(void)
   return c;
 }
 
-/*
- * Scans sequence of integers in input stream.
- * Return integer that was found.
- * @val is the first parsed number in the sequence.
- */
+// Scans sequence of integers in input stream.
+// Return integer that was found.
+// @val is the first parsed number in the sequence.
 int Lexer::scanint(char val)
 {
   int sum = val - '0';
@@ -69,11 +65,9 @@ int Lexer::scanint(char val)
   return sum;
 }
 
-/*
- * Get next token from the input.
- * Return 1 if found token, 0 if End Of File, -1 on error.
- * If found token, found token is placed to @tok.
- */
+// Get next token from the input.
+// Return 1 if found token, 0 if End Of File, -1 on error.
+// If found token, found token is placed to @tok.
 int Lexer::get_tok(token *tok)
 {
   char c;
@@ -104,7 +98,7 @@ int Lexer::get_tok(token *tok)
         tok->type = token_type::INTLIT;
         break;
       }
-      
+
       printf("Unexpected character '%c' on line %d\n", c, this->line);
       //exit(1); // TODO: make error handling instead.
       return -1;
@@ -114,10 +108,8 @@ int Lexer::get_tok(token *tok)
   return 1;
 }
 
-/*
- * Scanning the whole file and on success, return pointer to vector
- * with tokens. Otherwise return nullptr, and was_error set to true.
- */
+// Scanning the whole file and on success, return pointer to vector
+// with tokens. Otherwise return nullptr, and was_error set to true.
 std::vector<token>* scan(Lexer *lexer)
 {
   token tok;
@@ -135,11 +127,9 @@ std::vector<token>* scan(Lexer *lexer)
       continue;
     }
     
-    /*
-     * If there was an error, then it makes no sence to push new tokens
-     * to vector, because vector will be freed at the end of scanning.
-     * I think this will improve perfomance.
-     */
+    // If there was an error, then it makes no sence to push new tokens
+    // to vector, because vector will be freed at the end of scanning.
+    // I think this will improve perfomance.
     if(!lexer->was_error)
     {
       vec->push_back(tok);
@@ -157,11 +147,11 @@ std::vector<token>* scan(Lexer *lexer)
   return vec;
 }
 
-/*
- * Just put it here, because i dont know where else.
- */
+// Just put it here, because i dont know where else.
 const char *tok2string(token_type type)
 {
+  int size = 7;
   const char *tokens[] = {"Plus", "Minus", "Star", "Slash", "Int Lit", "Semicolon", "End"};
+  assert((int)type < size); // TODO: remove when all tokens are defined.
   return tokens[(int)type];
 }

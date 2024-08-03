@@ -11,3 +11,15 @@ them, it will cause complexity problems and
 i will strrugle to scan and parse source code
 at the same time. So i make it simple.
 
+--- 03 Aug 2024 ---
+I started making vector, but didint finish.
+Now compiler can compile only arithmetic
+expression, and i realized that C is not that
+different from assembly as i thought. I gonna
+make in Lexer, vector<char> field, and i gonna
+store there current lexeme, and when i parsed it
+i will compare it with keywords, if nothing is
+matched, this is identifier. I guess it is bad
+for perfomance, but i just wanna try write like
+this. I tried write it with pointers and buffers.
+Maybe then i will rewrite it.

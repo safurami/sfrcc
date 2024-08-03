@@ -3,9 +3,7 @@
 
 #include "token.h"
 
-/*
- * Offset in spaces to indent each node of AST.
- */
+// Offset in spaces to indent each node of AST.
 #define PRINT_OFFSET 3
 
 // Just ast node, can contain any node structure.

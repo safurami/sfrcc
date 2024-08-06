@@ -1,10 +1,11 @@
 #include <cassert>
 
 #include "include/lexer.h"
-#include "include/my.h"
 
 
-Lexer::Lexer(std::ifstream *file): line(1), putback(0), file(file), was_error(false) {}
+Lexer::Lexer(std::ifstream *file): line(1), putback(0), file(file), was_error(false), buffer(15){}
+
+
 // Get next character from input file, including '\n', eof and etc.
 // If character is '\n', increase this->m_file.
 char Lexer::next(void)
@@ -28,6 +29,17 @@ char Lexer::next(void)
   return c;
 }
 
+
+// Return next character from input, skip '\n', '\t', and etc.
+char Lexer::skip(void)
+{
+  char c;
+  // Loop for skipping not suitable characters.
+  while((c = this->next()), c == '\t' || c == '\n' || c == ' ') {}
+  return c;
+}
+
+
 void Lexer::putback_char(const char c)
 {
   // Assertion to ensure that there is not cases whene
@@ -40,21 +52,14 @@ void Lexer::putback_char(const char c)
   this->putback = c;
 }
 
-// Return next character from input, skip '\n', '\t', and etc.
-char Lexer::skip(void)
-{
-  char c;
-
-  // Loop for skipping not suitable characters.
-  while((c = this->next()), c == '\t' || c == '\n' || c == ' ') {}
-  return c;
-}
 
 // Scans sequence of integers in input stream.
 // Return integer that was found.
 // @val is the first parsed number in the sequence.
-int Lexer::scanint(char val)
+int Lexer::scan_int(char val)
 {
+  // TODO: when scanning numbers, and then character is occurred, no problem is
+  // detected.
   int sum = val - '0';
   char c;
   while((c = this->next()), my::isdigit(c))
@@ -63,6 +68,31 @@ int Lexer::scanint(char val)
   }
   this->putback_char(c);
   return sum;
+}
+
+void Lexer::scan_ident(char val)
+{
+  this->buffer.clear();
+  this->buffer.push_back(val);
+  char c;
+  while((c = this->next()), isalnum_id(c))
+  {
+    this->buffer.push_back(c);
+  }
+  this->putback_char(c);
+}
+
+token_type Lexer::analize_buffer()
+{
+  char *string = this->buffer.data();
+  if(my::strcmp(string, "int"))
+  {
+    return token_type::INT;
+  }
+  else
+  {
+    return token_type::INTLIT;
+  }
 }
 
 // Get next token from the input.
@@ -94,8 +124,14 @@ int Lexer::get_tok(token *tok)
     default:
       if(my::isdigit(c))
       {
-        tok->intval = this->scanint(c);
+        tok->intval = this->scan_int(c);
         tok->type = token_type::INTLIT;
+        break;
+      }
+      if(isalpha_id(c))
+      {
+        this->scan_ident(c);
+        tok->type = this->analize_buffer();
         break;
       }
 
@@ -107,6 +143,8 @@ int Lexer::get_tok(token *tok)
   // Found a token, returning 1(true).
   return 1;
 }
+
+
 
 // Scanning the whole file and on success, return pointer to vector
 // with tokens. Otherwise return nullptr, and was_error set to true.
@@ -150,8 +188,8 @@ std::vector<token>* scan(Lexer *lexer)
 // Just put it here, because i dont know where else.
 const char *tok2string(token_type type)
 {
-  int size = 7;
-  const char *tokens[] = {"Plus", "Minus", "Star", "Slash", "Int Lit", "Semicolon", "End"};
+  int size = 8;
+  const char *tokens[] = {"Plus", "Minus", "Star", "Slash", "Semicolon", "Int Lit", "int", "End"};
   assert((int)type < size); // TODO: remove when all tokens are defined.
   return tokens[(int)type];
 }

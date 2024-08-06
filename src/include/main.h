@@ -7,6 +7,8 @@ struct flags
 {
   bool dump_ast;
   bool dump_tokens;
+  bool dry_run;
+  bool help_menu;
   char *output;
 };
 

@@ -23,3 +23,10 @@ matched, this is identifier. I guess it is bad
 for perfomance, but i just wanna try write like
 this. I tried write it with pointers and buffers.
 Maybe then i will rewrite it.
+
+--- 03 Aug 2024 ---
+I now realized that my way to make detecting keywords
+is not that bad, i lost a little bit perfomance,
+but in return i get easy way to adding new keywords.
+And i think that this is good enough to tradeoff a
+little bit of a perfomance.

@@ -22,9 +22,15 @@ int main(int argc, const char **argv)
     return 1;
   }
 
-  int ret = compile_file(argv[1], &params);
-
-  printf("Compiler Return Code: %d\n", ret);
+  if(params.help_menu)
+  {
+    usage(argv[0]);
+  }
+  else
+  {
+    int ret = compile_file(argv[1], &params);
+    printf("Compiler Return Code: %d\n", ret);
+  }
 
   free_parameters_fields(&params);
 
@@ -52,19 +58,28 @@ bool parse_flags(flags *parameters, int argc, const char **argv)
     {
       if(i + 1 == argc)
       {
+        // This is last flag in input, and there is no file name.
         error = true;
         parameters->output = nullptr;
         printf("Output file is not specified\n");
         break;
       }
       i++;
-      unsigned int out_file_size = std::strlen(argv[i]);
+      unsigned int out_file_size = my::strlen(argv[i]);
       parameters->output = new char[out_file_size + 1]();
       memcpy(parameters->output, argv[i], out_file_size + 1);
     }
     if(match_param(argv[i], "--dump-tokens"))
     {
       parameters->dump_tokens = true;
+    }
+    if(match_param(argv[i], "--dry-run"))
+    {
+      parameters->dry_run = true;
+    }
+    if(match_param(argv[i], "--help"))
+    {
+      parameters->help_menu = true;
     }
   }
   return error;
@@ -108,6 +123,8 @@ void usage(const char *progname)
   printf("\nFLAGS:\n");
   printf("\t--dump-ast : Print parsed AST.\n");
   printf("\t--dump-tokens : Print parsed tokens.\n");
+  printf("\t--dry-run : Run compiler in dry mode.\n");
+  printf("\t--help : Print this menu.\n");
   printf("\t--output <file> : Specify output file name.\n");
 }
 
@@ -182,7 +199,14 @@ int compile_file(const char *inputfile, flags *parameters)
     printf("---Dump AST End---\n\n");
   }
 
-  code_gen(root, parameters);
+  if(parameters->dry_run)
+  {
+    printf("Executed with dry run parameter, code generation aborted.\n");
+  }
+  else
+  {
+    code_gen(root, parameters);
+  }
 
   free_ast(root);
 

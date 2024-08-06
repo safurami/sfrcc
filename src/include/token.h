@@ -4,9 +4,9 @@
 #include <vector>
 
 enum class token_type {
-  PLUS, MINUS, STAR, SLASH,
+  PLUS, MINUS, STAR, SLASH, SEMICOLON,
 
-  INTLIT, SEMICOLON,
+  INTLIT, INT,
 
   END
 };
